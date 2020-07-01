@@ -13,4 +13,8 @@ public class ProjectController {
         model.addAttribute("name", "yikai");
         return "welcome";
     }
+
+//    @RequestMapping("/hello")
+//    public String hello(){
+//    }
 }
