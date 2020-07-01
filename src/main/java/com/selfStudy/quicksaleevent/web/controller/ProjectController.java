@@ -1,5 +1,7 @@
 package com.selfStudy.quicksaleevent.web.controller;
 
+import com.selfStudy.quicksaleevent.domain.model.User;
+import com.selfStudy.quicksaleevent.service.UserService;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import com.selfStudy.quicksaleevent.web.result.Result;
 import org.springframework.stereotype.Controller;
@@ -10,6 +12,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/demo")
 public class ProjectController {
+
+    UserService userService; // injected by constructor
+
+    public ProjectController(UserService userService) {
+        this.userService = userService;
+    }
 
     // REST-api
     @RequestMapping("/hello")
@@ -29,5 +37,20 @@ public class ProjectController {
     public String thymeleaf(Model model) {
         model.addAttribute("name", "yikai");
         return "welcome-page";
+    }
+
+    // Database connection test
+    @RequestMapping("db/get")
+    @ResponseBody
+    public Result<User> dbGet() {
+        User user = userService.getById(1);
+        return Result.success(user);
+    }
+
+    @RequestMapping("db/tx")
+    @ResponseBody
+    public Result<Boolean> dbTx() {
+        userService.tx();
+        return Result.success(true);
     }
 }
