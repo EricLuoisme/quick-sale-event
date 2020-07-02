@@ -1,30 +1,19 @@
 package com.selfStudy.quicksaleevent.redis;
 
 import com.alibaba.fastjson.JSON;
-import com.selfStudy.quicksaleevent.config.RedisConfig;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+@Service
 public class RedisService {
 
     JedisPool jedisPool; // injected by constructor
 
-    RedisConfig redisConfig; // injected by constructor
-
-    public RedisService(JedisPool jedisPool, RedisConfig redisConfig) {
+    public RedisService(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
-        this.redisConfig = redisConfig;
-    }
-
-    public JedisPool JedisPoolFactory() {
-        JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(redisConfig.getPoolMaxTotal());
-        poolConfig.setMaxIdle(redisConfig.getPoolMaxIdle());
-        poolConfig.setMaxWaitMillis(redisConfig.getPoolMaxWait() * 1000); // let it become second instead of million second
-        JedisPool jedisPool = new JedisPool(poolConfig, redisConfig.getHost(),
-                redisConfig.getPort(), redisConfig.getTimeout() * 1000, redisConfig.getPassword(), 0);
-        return jedisPool;
     }
 
     public <T> boolean set(String key, T value) {

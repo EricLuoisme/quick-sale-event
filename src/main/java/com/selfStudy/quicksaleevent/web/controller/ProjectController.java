@@ -51,10 +51,25 @@ public class ProjectController {
         return Result.success(user);
     }
 
-    @RequestMapping("redis/get")
+    @RequestMapping("/db/tx")
     @ResponseBody
     public Result<Boolean> dbTx() {
         userService.tx();
         return Result.success(true);
+    }
+
+    @RequestMapping("redis/get")
+    @ResponseBody
+    public Result<Long> redisGet() {
+        Long key1 = redisService.get("key1", Long.class);
+        return Result.success(key1);
+    }
+
+    @RequestMapping("redis/set")
+    @ResponseBody
+    public Result<String> redisSet() {
+        boolean ret = redisService.set("key2", "hello world");
+        String ret_get = redisService.get("key2", String.class);
+        return Result.success(ret_get);
     }
 }
