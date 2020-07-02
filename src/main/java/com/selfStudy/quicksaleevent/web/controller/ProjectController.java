@@ -1,6 +1,7 @@
 package com.selfStudy.quicksaleevent.web.controller;
 
 import com.selfStudy.quicksaleevent.domain.model.User;
+import com.selfStudy.quicksaleevent.redis.RedisService;
 import com.selfStudy.quicksaleevent.service.UserService;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import com.selfStudy.quicksaleevent.web.result.Result;
@@ -13,10 +14,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/demo")
 public class ProjectController {
 
-    UserService userService; // injected by constructor
+    UserService userService;
 
-    public ProjectController(UserService userService) {
+    RedisService redisService; // injected by constructor
+
+    public ProjectController(UserService userService, RedisService redisService) {
         this.userService = userService;
+        this.redisService = redisService;
     }
 
     // REST-api
@@ -47,7 +51,7 @@ public class ProjectController {
         return Result.success(user);
     }
 
-    @RequestMapping("db/tx")
+    @RequestMapping("redis/get")
     @ResponseBody
     public Result<Boolean> dbTx() {
         userService.tx();
