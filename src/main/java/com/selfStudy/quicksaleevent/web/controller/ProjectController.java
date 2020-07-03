@@ -2,6 +2,7 @@ package com.selfStudy.quicksaleevent.web.controller;
 
 import com.selfStudy.quicksaleevent.domain.model.User;
 import com.selfStudy.quicksaleevent.redis.RedisService;
+import com.selfStudy.quicksaleevent.redis.UserKey;
 import com.selfStudy.quicksaleevent.service.UserService;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import com.selfStudy.quicksaleevent.web.result.Result;
@@ -60,16 +61,18 @@ public class ProjectController {
 
     @RequestMapping("redis/get")
     @ResponseBody
-    public Result<Long> redisGet() {
-        Long key1 = redisService.get("key1", Long.class);
-        return Result.success(key1);
+    public Result<User> redisGet() {
+        User user = redisService.get(UserKey.getById, "" + 1, User.class);
+        return Result.success(user);
     }
 
     @RequestMapping("redis/set")
     @ResponseBody
-    public Result<String> redisSet() {
-        boolean ret = redisService.set("key2", "hello world");
-        String ret_get = redisService.get("key2", String.class);
-        return Result.success(ret_get);
+    public Result<Boolean> redisSet() {
+        User user = new User();
+        user.setId(1);
+        user.setName("1111");
+        redisService.set(UserKey.getById, "" + 1, user); // UserKey:id1
+        return Result.success(true);
     }
 }

@@ -7,6 +7,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 @Component
 public class RedisPoolFactory {
+    // This class is used to connect redis
 
     RedisConfig redisConfig; // injected by constructor
 
