@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class MD5Test {
-
     @Test
     public void encodeInput_thenReturnTrue() {
         String plainTest = "123456";
