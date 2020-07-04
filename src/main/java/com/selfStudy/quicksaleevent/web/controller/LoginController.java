@@ -40,15 +40,10 @@ public class LoginController {
 
     @RequestMapping("/do_login")
     @ResponseBody
-    public Result<Boolean> doLogin(@Valid @ModelAttribute("userLoginDTO") LoginVo loginVo) {
+    public Result<Boolean> doLogin(@Valid LoginVo loginVo) {
         logger.info(loginVo.toString());
-        String mobile = loginVo.getMobile();
-        String plainText = loginVo.getPassword();
-
-        CodeMsg msg = quickSaleUserService.login(loginVo);
-        if (msg.getCode() == 0)
-            return Result.success(true);
-        else
-            return Result.error(msg);
+        // login
+        quickSaleUserService.login(loginVo);
+        return Result.success(true);
     }
 }
