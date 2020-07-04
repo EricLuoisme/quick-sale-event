@@ -24,10 +24,6 @@ public class QuickSaleUserService {
         if (loginVo == null)
             return CodeMsg.SERVER_ERROR;
 
-        // do first validation
-        String firstEncode = MD5Util.inputPassToFormPass(loginVo.getPassword());
-        loginVo.setPassword(firstEncode);
-
         // 1. check mobile exists in database
         QuickSaleUser quickSaleUser = getById(Long.parseLong(loginVo.getMobile()));
         if (quickSaleUser == null)

@@ -1,6 +1,9 @@
 package com.selfStudy.quicksaleevent.vo;
 
 
+import com.selfStudy.quicksaleevent.validator.IsMobile;
+import org.hibernate.validator.constraints.Length;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -9,8 +12,12 @@ public class LoginVo {
      * the class represent data transcript object during user login
      */
 
+    @NotNull
+    @IsMobile
     private String mobile;
 
+    @NotNull
+    @Length(min = 5) // for password plain-text
     private String password;
 
     public String getMobile() {
