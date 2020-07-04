@@ -15,6 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/login")
@@ -38,8 +42,20 @@ public class LoginController {
         return "login_new";
     }
 
-    @PostMapping("/do_login")
+//    @RequestMapping("/do_login")
+//    @ResponseBody
+//    public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
+//        logger.info(loginVo.toString());
+//        //登录
+//        quickSaleUserService.login(loginVo);
+//        return Result.success(true);
+//    }
+
+
+    @RequestMapping("/do_login")
+    @ResponseBody
     public Result<Boolean> doLogin(@ModelAttribute("userLoginDTO") LoginVo loginVo) {
+//    public String doLogin(@ModelAttribute("userLoginDTO") LoginVo loginVo) {
         logger.info(loginVo.toString());
         String mobile = loginVo.getMobile();
         String plainText = loginVo.getPassword();
@@ -55,18 +71,10 @@ public class LoginController {
         // go login
         CodeMsg msg = quickSaleUserService.login(loginVo);
         if (msg.getCode() == 0)
+//            return "Su";
             return Result.success(true);
         else
+//            return "Fa";
             return Result.error(msg);
-
-        // TODO using thymeleft cannot redirect to same page
     }
-
-
-    //    @RequestMapping("/do_login")
-//    public Result<Boolean> doLogin(LoginVo loginVo) {
-//        logger.info(loginVo.toString());
-//        // do validation
-//        return null;
-//    }
 }

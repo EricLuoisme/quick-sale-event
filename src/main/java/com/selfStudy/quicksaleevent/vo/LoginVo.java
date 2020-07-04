@@ -1,6 +1,9 @@
 package com.selfStudy.quicksaleevent.vo;
 
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class LoginVo {
     /**
      * the class represent data transcript object during user login
