@@ -8,6 +8,10 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface UserDao {
+    /**
+     * for communicate with database, by using mybatis, to table user
+     */
+
     @Select("select * from user where id= #{id}")
     public User getById(@Param("id") int id);
 

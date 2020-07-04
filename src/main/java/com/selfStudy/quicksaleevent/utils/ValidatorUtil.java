@@ -13,7 +13,6 @@ public class ValidatorUtil {
     public static boolean isMobile(String str) {
         if (StringUtils.isEmpty(str))
             return false;
-
         Matcher m = mobile_pattern.matcher(str);
         return m.matches();
     }

@@ -2,6 +2,9 @@ package com.selfStudy.quicksaleevent.web.controller;
 
 import com.alibaba.druid.util.StringUtils;
 import com.selfStudy.quicksaleevent.redis.RedisService;
+import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
+import com.selfStudy.quicksaleevent.utils.MD5Util;
+import com.selfStudy.quicksaleevent.utils.ValidatorUtil;
 import com.selfStudy.quicksaleevent.vo.LoginVo;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import com.selfStudy.quicksaleevent.web.result.Result;
@@ -19,37 +22,51 @@ public class LoginController {
 
     RedisService redisService;
 
+    QuickSaleUserService quickSaleUserService;
+
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
+
+
+    public LoginController(RedisService redisService, QuickSaleUserService quickSaleUserService) {
+        this.redisService = redisService;
+        this.quickSaleUserService = quickSaleUserService;
+    }
 
     @RequestMapping("/to_login")
     public String home(Model model) {
-//        return "login";
         model.addAttribute("loginVo", new LoginVo());
         return "login_new";
     }
 
-//    @RequestMapping("/do_login")
+    @PostMapping("/do_login")
+    public Result<Boolean> doLogin(@ModelAttribute("userLoginDTO") LoginVo loginVo) {
+        logger.info(loginVo.toString());
+        String mobile = loginVo.getMobile();
+        String plainText = loginVo.getPassword();
+
+        // validation
+        if (StringUtils.isEmpty(plainText))
+            return Result.error(CodeMsg.PASSWORD_EMPTY);
+        if (StringUtils.isEmpty(mobile))
+            return Result.error(CodeMsg.MOBILE_EMPTY);
+        if (!ValidatorUtil.isMobile(mobile))
+            return Result.error(CodeMsg.MOBILE_ERROR);
+
+        // go login
+        CodeMsg msg = quickSaleUserService.login(loginVo);
+        if (msg.getCode() == 0)
+            return Result.success(true);
+        else
+            return Result.error(msg);
+
+        // TODO using thymeleft cannot redirect to same page
+    }
+
+
+    //    @RequestMapping("/do_login")
 //    public Result<Boolean> doLogin(LoginVo loginVo) {
 //        logger.info(loginVo.toString());
 //        // do validation
 //        return null;
 //    }
-
-    @PostMapping("/do_login")
-    public Result<Boolean> doLogin(@ModelAttribute("userLoginDTO") LoginVo loginVo) {
-
-        logger.info(loginVo.toString());
-        String mobile = loginVo.getMobile();
-        String plainText = loginVo.getPassword();
-
-        // TODO 1. validation
-        if (StringUtils.isEmpty(plainText))
-            return Result.error(CodeMsg.PASSWORD_EMPTY);
-        if (StringUtils.isEmpty(mobile))
-            return Result.error(CodeMsg.MOBILE_EMPTY);
-
-        // TODO 2. MD5 encoding
-        return Result.success(true);
-    }
-
 }

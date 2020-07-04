@@ -12,6 +12,9 @@ public class CodeMsg {
     public static CodeMsg SESSION_ERROR = new CodeMsg(500210, "session not exist or expired");
     public static CodeMsg PASSWORD_EMPTY = new CodeMsg(500211, "user password can not be empty");
     public static CodeMsg MOBILE_EMPTY = new CodeMsg(500212, "user mobile work as ID, can not be empty");
+    public static CodeMsg MOBILE_ERROR = new CodeMsg(500213, "invalid mobile pattern");
+    public static CodeMsg MOBILE_NOT_EXIST = new CodeMsg(500214, "mobile number has not been registered");
+    public static CodeMsg PASSWORD_ERROR = new CodeMsg(500215, "password is wrong");
 
 
     private CodeMsg(int code, String msg) {
