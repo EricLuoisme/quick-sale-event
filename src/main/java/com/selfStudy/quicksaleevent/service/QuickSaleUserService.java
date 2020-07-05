@@ -47,7 +47,7 @@ public class QuickSaleUserService {
             return null;
         QuickSaleUser user = redisService.get(QuickSaleUserKey.token, token, QuickSaleUser.class);
         if (user != null)
-            addCookie(response, user); // extend cookie's expire date after user login
+            addCookie(response, token, user); // extend cookie's expire date after user login
         return user;
     }
 
@@ -69,15 +69,16 @@ public class QuickSaleUserService {
             throw new GlobalException(CodeMsg.PASSWORD_ERROR);
 
         // 3. Create Cookie
-        addCookie(response, quickSaleUser);
+        String token = UUIDUtil.uuid();
+        addCookie(response, token, quickSaleUser);
         return true;
     }
 
-    private void addCookie(HttpServletResponse response, QuickSaleUser quickSaleUser) {
+    private void addCookie(HttpServletResponse response, String token, QuickSaleUser quickSaleUser) {
         /**
          * For adding cookie to the browser
          */
-        String token = UUIDUtil.uuid();
+//        String token = UUIDUtil.uuid();
         redisService.set(QuickSaleUserKey.token, token, quickSaleUser); // set it into Redis
         // (key, value) = (QuickSaleUserKey:tk + token, quickSaleUser) then
         // server can search by this key, to know which who are visiting the site now
