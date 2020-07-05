@@ -7,7 +7,7 @@ public class QuickSaleUser {
      * This class is an entity for connecting with database's table: quicksale-user
      */
     private Long id;
-    private String nickName;
+    private String nickname;
     private String password;
     private String salt;
     private String head;
@@ -23,12 +23,12 @@ public class QuickSaleUser {
         this.id = id;
     }
 
-    public String getNickName() {
-        return nickName;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getPassword() {

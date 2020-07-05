@@ -33,17 +33,16 @@ public class LoginController {
     }
 
     @RequestMapping("/to_login")
-    public String home(Model model) {
-        model.addAttribute("loginVo", new LoginVo());
+    public String toLogin() {
         return "login";
     }
 
     @RequestMapping("/do_login")
     @ResponseBody
-    public Result<Boolean> doLogin(@Valid LoginVo loginVo) {
+    public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
         logger.info(loginVo.toString());
         // login
-        quickSaleUserService.login(loginVo);
+        quickSaleUserService.login(response, loginVo);
         return Result.success(true);
     }
 }
