@@ -52,7 +52,7 @@ public class QuickSaleUserService {
     }
 
 
-    public boolean login(HttpServletResponse response, LoginVo loginVo) {
+    public String login(HttpServletResponse response, LoginVo loginVo) {
         if (loginVo == null)
             throw new GlobalException(CodeMsg.SERVER_ERROR);
 
@@ -71,7 +71,7 @@ public class QuickSaleUserService {
         // 3. Create Cookie
         String token = UUIDUtil.uuid();
         addCookie(response, token, quickSaleUser);
-        return true;
+        return token;
     }
 
     private void addCookie(HttpServletResponse response, String token, QuickSaleUser quickSaleUser) {
