@@ -13,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -32,8 +29,6 @@ public class GoodsController {
 
     GoodsService goodsService;
 
-    Logger log = LoggerFactory.getLogger(GoodsController.class);
-
     public GoodsController(RedisService redisService, QuickSaleUserService quickSaleUserService, GoodsService goodsService) {
         this.redisService = redisService;
         this.quickSaleUserService = quickSaleUserService;
@@ -47,8 +42,36 @@ public class GoodsController {
 
         // 1. query for all goods' info
         List<GoodsVO> goodsList = goodsService.listGoodsVo();
-        log.info(goodsList.get(0).getGoodsImg());
         model.addAttribute("goodsList", goodsList);
         return "goods_list";
+    }
+
+    @RequestMapping("/to_detail/{goodsId}")
+    public String detail(Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
+        model.addAttribute("user", user);
+
+        GoodsVO goods = goodsService.getGoodsVoByGoodsId(goodsId);
+        model.addAttribute("goods", goods);
+        long start = goods.getStartDate().getTime();
+        long end = goods.getEndDate().getTime();
+        long now = System.currentTimeMillis();
+
+        int quickSaleEventStatus = 0;
+        int remainingSecond = 0;
+
+        if (now < start) { // waiting for quick sale event
+            quickSaleEventStatus = 0;
+            remainingSecond = (int) ((start - now) / 1000); // counting down
+        } else if (now > end) { // quick sale event expired
+            quickSaleEventStatus = 2;
+            remainingSecond = -1;
+        } else { // quick sale event happening
+            quickSaleEventStatus = 1;
+            remainingSecond = 0;
+        }
+        model.addAttribute("quickSaleStatus", quickSaleEventStatus);
+        model.addAttribute("remainSeconds", remainingSecond);
+
+        return "goods_detail";
     }
 }
