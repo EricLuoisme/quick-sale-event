@@ -46,7 +46,7 @@
                 <span th:if="${quickSaleStatus eq 2}">Expired</span>
             </td>
             <td>
-                <form id="miaoshaForm" method="post" action="/miaosha/do_miaosha">
+                <form id="miaoshaForm" method="post" action="/quicksale/do_quicksale">
                     <button class="btn btn-primary btn-block" type="submit" id="buyButton">Have It Now !</button>
                     <input type="hidden" name="goodsId" th:value="${goods.id}"/>
                 </form>

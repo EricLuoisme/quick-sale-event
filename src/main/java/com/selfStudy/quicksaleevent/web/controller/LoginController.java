@@ -41,8 +41,7 @@ public class LoginController {
     @ResponseBody
     public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
         logger.info(loginVo.toString());
-        // login
-        quickSaleUserService.login(response, loginVo);
+        quickSaleUserService.login(response, loginVo); // login
         return Result.success(true);
     }
 }

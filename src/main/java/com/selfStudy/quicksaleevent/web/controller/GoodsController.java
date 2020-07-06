@@ -38,20 +38,15 @@ public class GoodsController {
 
     @RequestMapping("/to_list")
     public String list(Model model, QuickSaleUser user) {
+        List<GoodsVO> goodsList = goodsService.listGoodsVo(); // query for all goods' info
         model.addAttribute("user", user);
-
-        // 1. query for all goods' info
-        List<GoodsVO> goodsList = goodsService.listGoodsVo();
         model.addAttribute("goodsList", goodsList);
         return "goods_list";
     }
 
     @RequestMapping("/to_detail/{goodsId}")
     public String detail(Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
-        model.addAttribute("user", user);
-
         GoodsVO goods = goodsService.getGoodsVoByGoodsId(goodsId);
-        model.addAttribute("goods", goods);
         long start = goods.getStartDate().getTime();
         long end = goods.getEndDate().getTime();
         long now = System.currentTimeMillis();
@@ -69,6 +64,8 @@ public class GoodsController {
             quickSaleEventStatus = 1;
             remainingSecond = 0;
         }
+        model.addAttribute("user", user);
+        model.addAttribute("goods", goods);
         model.addAttribute("quickSaleStatus", quickSaleEventStatus);
         model.addAttribute("remainSeconds", remainingSecond);
 

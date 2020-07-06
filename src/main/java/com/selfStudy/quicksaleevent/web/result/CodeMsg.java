@@ -4,18 +4,26 @@ public class CodeMsg {
     private int code;
     private String msg;
 
-    // general errors
+    // General Errors
     public static CodeMsg SUCCESS = new CodeMsg(0, "success");
     public static CodeMsg SERVER_ERROR = new CodeMsg(500100, "server error");
     public static CodeMsg BIND_ERROR = new CodeMsg(500101, "Bind Error : %s");
 
-    // login errors # 500200
+    // Login Module Errors # 500200
     public static CodeMsg SESSION_ERROR = new CodeMsg(500210, "session not exist or expired");
     public static CodeMsg PASSWORD_EMPTY = new CodeMsg(500211, "user password can not be empty");
     public static CodeMsg MOBILE_EMPTY = new CodeMsg(500212, "user mobile work as ID, can not be empty");
     public static CodeMsg MOBILE_ERROR = new CodeMsg(500213, "invalid mobile pattern");
     public static CodeMsg MOBILE_NOT_EXIST = new CodeMsg(500214, "mobile number has not been registered");
     public static CodeMsg PASSWORD_ERROR = new CodeMsg(500215, "password is wrong");
+
+    // Goods Module Errors # 500300
+
+    // Order Module Errors # 500400
+
+    // Spick Module Errors # 500500
+    public static CodeMsg EVENT_STORAGE_EMPTY = new CodeMsg(500500, "No more storage of current goods in this event");
+    public static CodeMsg CANNOT_BUY_TWICE = new CodeMsg(500501, "A user cannot buy same item twice in same event");
 
 
     private CodeMsg(int code, String msg) {
