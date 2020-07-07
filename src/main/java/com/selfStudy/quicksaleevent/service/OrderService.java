@@ -4,7 +4,7 @@ import com.selfStudy.quicksaleevent.dao.OrderDao;
 import com.selfStudy.quicksaleevent.domain.model.OrderInfo;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleOrder;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
-import com.selfStudy.quicksaleevent.vo.GoodsVO;
+import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +24,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderInfo createOrder(QuickSaleUser user, GoodsVO goods) {
+    public OrderInfo createOrder(QuickSaleUser user, GoodsVo goods) {
 
         // create an order
         OrderInfo orderInfo = new OrderInfo();

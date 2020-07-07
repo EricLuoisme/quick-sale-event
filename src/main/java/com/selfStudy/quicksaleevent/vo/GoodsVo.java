@@ -4,7 +4,7 @@ import com.selfStudy.quicksaleevent.domain.model.Goods;
 
 import java.util.Date;
 
-public class GoodsVO extends Goods {
+public class GoodsVo extends Goods {
 
     /**
      * by extending Goods + 4 fields from QuickSalesGoods,

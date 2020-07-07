@@ -1,9 +1,8 @@
 package com.selfStudy.quicksaleevent.service;
 
-import com.selfStudy.quicksaleevent.domain.model.Goods;
 import com.selfStudy.quicksaleevent.domain.model.OrderInfo;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
-import com.selfStudy.quicksaleevent.vo.GoodsVO;
+import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,7 @@ public class QuickSaleService {
     }
 
     @Transactional
-    public OrderInfo doSale(QuickSaleUser user, GoodsVO goods) {
+    public OrderInfo doSale(QuickSaleUser user, GoodsVo goods) {
         goodsService.reduceStock(goods); // reduce the stock
         return orderService.createOrder(user, goods); // create a order
     }

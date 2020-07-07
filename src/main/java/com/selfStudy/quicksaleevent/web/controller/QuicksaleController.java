@@ -8,14 +8,12 @@ import com.selfStudy.quicksaleevent.service.GoodsService;
 import com.selfStudy.quicksaleevent.service.OrderService;
 import com.selfStudy.quicksaleevent.service.QuickSaleService;
 import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
-import com.selfStudy.quicksaleevent.vo.GoodsVO;
+import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/quicksale")
@@ -48,7 +46,7 @@ public class QuicksaleController {
             return "login"; // user must be login then can purchase an item
 
         // 2. check storage of this item
-        GoodsVO goodsVO = goodsService.getGoodsVoByGoodsId(goodsId);
+        GoodsVo goodsVO = goodsService.getGoodsVoByGoodsId(goodsId);
         int stock = goodsVO.getStockCount(); // check stock for quick sale event
         if (stock <= 0) {
             model.addAttribute("errmsg", CodeMsg.EVENT_STORAGE_EMPTY.getMsg());

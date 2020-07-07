@@ -2,7 +2,7 @@ package com.selfStudy.quicksaleevent.service;
 
 import com.selfStudy.quicksaleevent.dao.GoodsDao;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleGoods;
-import com.selfStudy.quicksaleevent.vo.GoodsVO;
+import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +16,15 @@ public class GoodsService {
         this.goodsDAO = goodsDAO;
     }
 
-    public List<GoodsVO> listGoodsVo() {
+    public List<GoodsVo> listGoodsVo() {
         return goodsDAO.listGoodsVO();
     }
 
-    public GoodsVO getGoodsVoByGoodsId(long goodsId) {
+    public GoodsVo getGoodsVoByGoodsId(long goodsId) {
         return goodsDAO.getGoodsVoByGoodsId(goodsId);
     }
 
-    public void reduceStock(GoodsVO goods) {
+    public void reduceStock(GoodsVo goods) {
         QuickSaleGoods g = new QuickSaleGoods();
         g.setGoodsId(goods.getId());
         goodsDAO.reduceStock(g);
