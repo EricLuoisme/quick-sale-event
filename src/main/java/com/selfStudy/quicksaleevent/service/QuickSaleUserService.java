@@ -34,7 +34,38 @@ public class QuickSaleUserService {
         /**
          * Get user object from mysql database by userID (mobile number)
          */
-        return quickSaleUserDao.getById(id);
+        // 1. Try getting user from Redis
+        QuickSaleUser user = redisService.get(QuickSaleUserKey.getById, "" + id, QuickSaleUser.class);
+        if (user != null)
+            return user;
+
+        // 2. No cache, then search it from database
+        user = quickSaleUserDao.getById(id);
+        if (user != null)
+            redisService.set(QuickSaleUserKey.getById, "" + id, user); // add cache
+        return user;
+    }
+
+    public boolean updatePassword(String token, Long id, String passwordNew) {
+        /**
+         * Update User password
+         */
+        // 1. get the user object
+        QuickSaleUser user = getById(id);
+        if (user == null)
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+
+        // 2. update database
+        QuickSaleUser toBeUpdate = new QuickSaleUser(); // work as only updated stuff setted into it
+        toBeUpdate.setId(id);
+        toBeUpdate.setPassword(MD5Util.formPassToDBPass(passwordNew, user.getSalt()));
+        quickSaleUserDao.update(toBeUpdate);
+
+        // 3. Clean the Redis cache for the old user object
+        redisService.delete(QuickSaleUserKey.getById, "" + id);
+        user.setPassword(toBeUpdate.getPassword());
+        redisService.set(QuickSaleUserKey.token, token, user);
+        return true;
     }
 
 
@@ -45,7 +76,7 @@ public class QuickSaleUserService {
          */
         if (StringUtils.isEmpty(token))
             return null;
-        QuickSaleUser user = redisService.get(QuickSaleUserKey.token, token, QuickSaleUser.class);
+        QuickSaleUser user = redisService.get(QuickSaleUserKey.token, token, QuickSaleUser.class); // object-level cache
         if (user != null)
             addCookie(response, token, user); // extend cookie's expire date after user login
         return user;
@@ -53,6 +84,9 @@ public class QuickSaleUserService {
 
 
     public String login(HttpServletResponse response, LoginVo loginVo) {
+        /**
+         * User login logic
+         */
         if (loginVo == null)
             throw new GlobalException(CodeMsg.SERVER_ERROR);
 

@@ -3,7 +3,6 @@ package com.selfStudy.quicksaleevent.redis;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -19,8 +18,10 @@ public class RedisService {
         this.jedisPool = jedisPool;
     }
 
-    // For setting object and push into Redis
     public <T> boolean set(KeyPrefix prefix, String key, T value) {
+        /**
+         * For setting object and push into Redis
+         */
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource(); // get a connection resource from connection pool
@@ -41,8 +42,10 @@ public class RedisService {
         }
     }
 
-    // For retrieving object from Redis
     public <T> T get(KeyPrefix prefix, String key, Class<T> clazz) {
+        /**
+         * For retrieving object from Redis
+         */
         Jedis jedis = null;
         try {
             // create a real key that combine the belonging info
@@ -56,8 +59,10 @@ public class RedisService {
         }
     }
 
-    // For checking key's existence
     public <T> boolean exist(KeyPrefix prefix, String key) {
+        /**
+         * For checking key's existence
+         */
         Jedis jedis = null;
         try {
             // create a real key that combine the belonging info
@@ -69,8 +74,26 @@ public class RedisService {
         }
     }
 
-    // For increasing this input key's value by 1. No key would return -1. Automatic
+    public boolean delete(KeyPrefix prefix, String key) {
+        /**
+         * For delete related caches in Redis
+         */
+        Jedis jedis = null;
+        try {
+            // create a real key that combine the belonging info
+            jedis = jedisPool.getResource();
+            String realKey = prefix.getPrefix() + key;
+            long res = jedis.del(realKey);
+            return res > 0;
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
     public <T> Long incr(KeyPrefix prefix, String key) {
+        /**
+         * For increasing this input key's value by 1. No key would return -1. Automatic
+         */
         Jedis jedis = null;
         try {
             // create a real key that combine the belonging info
@@ -82,8 +105,10 @@ public class RedisService {
         }
     }
 
-    // For decreasing this input key's value by 1. No key would return -1. Automatic
     public <T> Long decr(KeyPrefix prefix, String key) {
+        /**
+         * For decreasing this input key's value by 1. No key would return -1. Automatic
+         */
         Jedis jedis = null;
         try {
             // create a real key that combine the belonging info
@@ -95,9 +120,10 @@ public class RedisService {
         }
     }
 
-    // below functions are using to convert java object to json object, vise versa
-
     private <T> String beanToString(T value) {
+        /**
+         * convert Object into String for storing into Redis
+         */
         if (value == null)
             return null;
         Class<?> clazz = value.getClass();
@@ -112,6 +138,9 @@ public class RedisService {
     }
 
     private <T> T stringToBean(String str, Class<T> clazz) {
+        /**
+         * convert string we get from Redis to Object
+         */
         if (str == null || str.length() <= 0 || clazz == null)
             return null;
         if (clazz == int.class || clazz == Integer.class) {
@@ -126,6 +155,9 @@ public class RedisService {
     }
 
     private void returnToPool(Jedis jedis) {
+        /**
+         * For let this Jedis connection return to connection pool
+         */
         if (jedis != null)
             jedis.close(); // return to the connection pool
     }

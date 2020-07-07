@@ -16,13 +16,14 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.util.List;
 
 @Controller
 @RequestMapping("/goods")
-public class GoodsController extends BaseController {
+public class GoodsController {
 
-    QuickSaleUserService userService; // autowired by constructor
+    QuickSaleUserService userService; // auto wired by constructor
 
     RedisService redisService;
 
@@ -32,21 +33,39 @@ public class GoodsController extends BaseController {
 
     ApplicationContext applicationContext;
 
-    public GoodsController(ThymeleafViewResolver thymeleafViewResolver, RedisService redisService, QuickSaleUserService userService, RedisService redisService1, GoodsService goodsService, ThymeleafViewResolver thymeleafViewResolver1, ApplicationContext applicationContext) {
-        super(thymeleafViewResolver, redisService);
+    public GoodsController(QuickSaleUserService userService, RedisService redisService, GoodsService goodsService,
+                           ThymeleafViewResolver thymeleafViewResolver, ApplicationContext applicationContext) {
         this.userService = userService;
-        this.redisService = redisService1;
+        this.redisService = redisService;
         this.goodsService = goodsService;
-        this.thymeleafViewResolver = thymeleafViewResolver1;
+        this.thymeleafViewResolver = thymeleafViewResolver;
         this.applicationContext = applicationContext;
     }
 
     @RequestMapping(value = "/to_list", produces = "text/html")
     public String list(HttpServletRequest request, HttpServletResponse response, Model model, QuickSaleUser user) {
+
+        // 1. get Redis cache
+        String html = redisService.get(GoodsKey.getGoodsList, "", String.class); // page-level cache
+        if (!StringUtils.isEmpty(html)) {
+            out(response, html);
+            return html;
+        }
+
+        // 2. no cache, get it from database
         List<GoodsVo> goodsList = goodsService.listGoodsVo();
         model.addAttribute("user", user);
         model.addAttribute("goodsList", goodsList);
-        return render(request, response, model, "goods_list", GoodsKey.getGoodsList, "");
+
+        // 3. creating cache of html and put it into Redis
+        WebContext ctx = new WebContext(request, response,
+                request.getServletContext(), request.getLocale(), model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_list", ctx);
+        if (!StringUtils.isEmpty(html)) {
+            redisService.set(GoodsKey.getGoodsList, "", html);
+        }
+        out(response, html);
+        return null;
     }
 
     @RequestMapping(value = "/to_detail/{goodsId}", produces = "text/html")
@@ -55,11 +74,12 @@ public class GoodsController extends BaseController {
                          Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
 
         // get Redis cache
-        String html = redisService.get(GoodsKey.getGoodsDetails, "" + goodsId, String.class);
+        String html = redisService.get(GoodsKey.getGoodsDetails, "" + goodsId, String.class); // page-level cache
         if (!StringUtils.isEmpty(html)) {
             return html;
         }
-        // creating the html cache manually
+
+        // still need to get goods' info from database
         GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
 
         long start = goods.getStartDate().getTime();
@@ -84,7 +104,7 @@ public class GoodsController extends BaseController {
         model.addAttribute("quickSaleStatus", quickSaleEventStatus);
         model.addAttribute("remainSeconds", remainingSecond);
 
-//         creating cache of html and put it into Redis
+        // creating cache of html and put it into Redis
         WebContext ctx = new WebContext(request, response,
                 request.getServletContext(), request.getLocale(), model.asMap());
         html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);
@@ -92,7 +112,21 @@ public class GoodsController extends BaseController {
             redisService.set(GoodsKey.getGoodsDetails, "" + goodsId, html);
         }
         return html;
+    }
 
-//        return "goods_detail";
+    public static void out(HttpServletResponse res, String html) {
+        /**
+         * Eliminate page problem of Thymeleaf
+         */
+        res.setContentType("text/html");
+        res.setCharacterEncoding("UTF-8");
+        try {
+            OutputStream out = res.getOutputStream();
+            out.write(html.getBytes("UTF-8"));
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
