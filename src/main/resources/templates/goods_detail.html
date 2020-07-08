@@ -73,27 +73,27 @@
 <!--	countDown();-->
 <!--});-->
 
-function countDown(){
-	var remainSeconds = $("#remainSeconds").val();
-	var timeout;
-	if(remainSeconds > 0){ // Event not happening right now
-		$("#buyButton").attr("disabled", true);
-		timeout = setTimeout(function(){
-			$("#countDown").text(remainSeconds - 1);
-			$("#remainSeconds").val(remainSeconds - 1);
-			countDown();
-		},1000);
-	}else if(remainSeconds == 0){ // Event is under way
-		$("#buyButton").attr("disabled", false);
-		if(timeout){
-			clearTimeout(timeout);
-		}
-		$("#quickSaleTip").html("Quick Sale Event Under the Way");
-	}else{ // Event expired
-		$("#buyButton").attr("disabled", true);
-		$("#quickSaleTip").html("Event Expired");
-	}
-}
+<!--function countDown(){-->
+<!--	var remainSeconds = $("#remainSeconds").val();-->
+<!--	var timeout;-->
+<!--	if(remainSeconds > 0){ // Event not happening right now-->
+<!--		$("#buyButton").attr("disabled", true);-->
+<!--		timeout = setTimeout(function(){-->
+<!--			$("#countDown").text(remainSeconds - 1);-->
+<!--			$("#remainSeconds").val(remainSeconds - 1);-->
+<!--			countDown();-->
+<!--		},1000);-->
+<!--	}else if(remainSeconds == 0){ // Event is under way-->
+<!--		$("#buyButton").attr("disabled", false);-->
+<!--		if(timeout){-->
+<!--			clearTimeout(timeout);-->
+<!--		}-->
+<!--		$("#quickSaleTip").html("Quick Sale Event Under the Way");-->
+<!--	}else{ // Event expired-->
+<!--		$("#buyButton").attr("disabled", true);-->
+<!--		$("#quickSaleTip").html("Event Expired");-->
+<!--	}-->
+<!--}-->
 
 <!--</script>-->
 <!--</html>-->

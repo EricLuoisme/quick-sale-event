@@ -10,10 +10,10 @@ import com.selfStudy.quicksaleevent.service.QuickSaleService;
 import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
+import com.selfStudy.quicksaleevent.web.result.Result;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/quicksale")
@@ -38,8 +38,38 @@ public class QuicksaleController {
     }
 
 
-    @RequestMapping("/do_quicksale")
-    public String list(Model model, QuickSaleUser user, @RequestParam("goodsId") long goodsId) {
+    @RequestMapping(value = "/do_quicksale", method = RequestMethod.POST)
+    @ResponseBody
+    public Result<OrderInfo> quicksale(Model model, QuickSaleUser user, @RequestParam("goodsId") long goodsId) {
+
+        model.addAttribute("user", user);
+
+        // 1. check user status
+        if (user == null)
+            return Result.error(CodeMsg.SESSION_ERROR);
+
+        // 2. check storage of this item
+        GoodsVo goodsVO = goodsService.getGoodsVoByGoodsId(goodsId);
+        int stock = goodsVO.getStockCount(); // check stock for quick sale event
+        if (stock <= 0) {
+            return Result.error(CodeMsg.EVENT_STORAGE_EMPTY);
+        }
+
+        // 3. check whether same user buy more than one spick item in same event
+        QuickSaleOrder order = orderService.getSpikeOrderByUserIdGoodsId(user.getId(), goodsId);
+        if (order != null) {
+            return Result.error(CodeMsg.CANNOT_BUY_TWICE);
+        }
+
+        // Spike Sale Operations
+        OrderInfo orderInfo = quickSaleService.doSale(user, goodsVO);
+        return Result.success(orderInfo);
+    }
+
+    @RequestMapping("/do_quicksaleOld")
+    public String listOld(Model model, QuickSaleUser user, @RequestParam("goodsId") long goodsId) {
+
+        model.addAttribute("user", user);
 
         // 1. check user status
         if (user == null)

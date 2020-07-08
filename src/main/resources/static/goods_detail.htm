@@ -66,14 +66,30 @@
 </body>
 <script>
 
-<!--$(function(){-->
-<!--    getDetail();-->
-<!--});-->
+function doQuickSale(){
+	$.ajax({
+	    url:"/quicksale/do_quicksale",
+	    type:"POST",
+		data:{
+			goodsId:goods.id,
+		},
+		success:function(data){
+			if(data.code == 0){
+				window.location.href="/order_detail.htm?orderId="+data.data.id;
+			}else{
+				layer.msg(data.msg);
+			}
+		},
+		error:function(){
+			layer.msg("Server Request Error");
+		}
+	});
+}
+
 
 $(document).ready(function () {
   getDetail();
 });
-
 
 function getDetail(){
 	var goodsId = g_getQueryString("goodsId");
@@ -145,27 +161,6 @@ function countDown(){
 		$("#quickSaleTip").html("<b>Event Expired</b>");
 	}
 }
-
-function doQuickSale(){
-	$.ajax({
-	    type:"POST",
-		url:"/quicksale/do_quicksale",
-		data:{
-			goodsId:goods.id,
-		},
-		success:function(data){
-			if(data.code == 0){
-				window.location.href="/order_detail.htm?orderId="+data.data.id;
-			}else{
-				layer.msg(data.msg);
-			}
-		},
-		error:function(){
-			layer.msg("Server Request Error");
-		}
-	});
-}
-
 
 </script>
 </html>
