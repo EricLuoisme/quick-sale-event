@@ -20,6 +20,7 @@ public class CodeMsg {
     // Goods Module Errors # 500300
 
     // Order Module Errors # 500400
+    public static CodeMsg ORDER_NOT_EXIST = new CodeMsg(500400, "Order is not exist");
 
     // Spick Module Errors # 500500
     public static CodeMsg EVENT_STORAGE_EMPTY = new CodeMsg(500500, "No more storage of current goods in this event");
