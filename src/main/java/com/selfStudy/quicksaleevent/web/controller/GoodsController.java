@@ -6,7 +6,9 @@ import com.selfStudy.quicksaleevent.redis.GoodsKey;
 import com.selfStudy.quicksaleevent.redis.RedisService;
 import com.selfStudy.quicksaleevent.service.GoodsService;
 import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
+import com.selfStudy.quicksaleevent.vo.GoodsDetailVo;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
+import com.selfStudy.quicksaleevent.web.result.Result;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,7 +51,7 @@ public class GoodsController {
         String html = redisService.get(GoodsKey.getGoodsList, "", String.class); // page-level cache
         if (!StringUtils.isEmpty(html)) {
             out(response, html);
-            return html;
+            return null;
         }
 
         // 2. no cache, get it from database
@@ -68,18 +70,50 @@ public class GoodsController {
         return null;
     }
 
-    @RequestMapping(value = "/to_detail/{goodsId}", produces = "text/html")
+    @RequestMapping(value = "/detail/{goodsId}")
     @ResponseBody
-    public String detail(HttpServletRequest request, HttpServletResponse response,
-                         Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
+    public Result<GoodsDetailVo> detail(HttpServletRequest request, HttpServletResponse response,
+                                        Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
 
-        // get Redis cache
+        // Try with front-end and back-end separation
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
+        long start = goods.getStartDate().getTime();
+        long end = goods.getEndDate().getTime();
+        long now = System.currentTimeMillis();
+        int quickSaleEventStatus = 0;
+        int remainSeconds = 0;
+
+        if (now < start) { // waiting for quick sale event
+            quickSaleEventStatus = 0;
+            remainSeconds = (int) ((start - now) / 1000); // counting down
+        } else if (now > end) { // quick sale event expired
+            quickSaleEventStatus = 2;
+            remainSeconds = -1;
+        } else { // quick sale event happening
+            quickSaleEventStatus = 1;
+            remainSeconds = 0;
+        }
+
+        GoodsDetailVo vo = new GoodsDetailVo();
+        vo.setGoods(goods);
+        vo.setUser(user);
+        vo.setQuickSaleEventStatus(quickSaleEventStatus);
+        vo.setRemainSeconds(remainSeconds);
+        return Result.success(vo);
+    }
+
+    @RequestMapping(value = "/to_detailOld/{goodsId}", produces = "text/html")
+    @ResponseBody
+    public String detailOld(HttpServletRequest request, HttpServletResponse response,
+                            Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
+
+        // 1. get Redis cache
         String html = redisService.get(GoodsKey.getGoodsDetails, "" + goodsId, String.class); // page-level cache
         if (!StringUtils.isEmpty(html)) {
             return html;
         }
 
-        // still need to get goods' info from database
+        // 2. still need to get goods' info from database
         GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
 
         long start = goods.getStartDate().getTime();
@@ -104,7 +138,7 @@ public class GoodsController {
         model.addAttribute("quickSaleStatus", quickSaleEventStatus);
         model.addAttribute("remainSeconds", remainingSecond);
 
-        // creating cache of html and put it into Redis
+        // 3. creating cache of html and put it into Redis
         WebContext ctx = new WebContext(request, response,
                 request.getServletContext(), request.getLocale(), model.asMap());
         html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);

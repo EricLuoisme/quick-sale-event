@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Details of Good</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+    <!-- layer -->
+    <script type="text/javascript" src="/layer/layer.js"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" src="/js/md5.min.js"></script>
+    <!-- common.js -->
+    <script type="text/javascript" src="/js/common.js"></script>
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading">Goods Details for Quick Sale Event</div>
+    <div class="panel-body">
+        <span id="userTip">Please login for further operation<br/></span>
+        <span>No valid delivery address</span>
+    </div>
+    <table class="table" id="goodslist">
+        <tr>
+            <td>Name of Goods</td>
+            <td colspan="3" id="goodsName"></td>
+        </tr>
+        <tr>
+            <td>Image of Goods</td>
+            <td colspan="3"><img id="goodsImg" width="200" height="200"/></td>
+        </tr>
+        <tr>
+            <td>Quick Sale Event Start Time</td>
+            <td id="startTime">
+                <input type="hidden" id="remainSeconds"/>
+            </td>
+            <td>
+                <span id="quickSaleTip"></span>
+            </td>
+            <td>
+                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doQuickSale()">Buy
+                </button>
+                <input type="hidden" name="goodsId" id="goodsId"/>
+            </td>
+        </tr>
+        <tr>
+            <td>Original Price</td>
+            <td colspan="3" id="goodsPrice"></td>
+        </tr>
+        <tr>
+            <td>Special Price</td>
+            <td colspan="3" id="quicksalePrice"></td>
+        </tr>
+        <tr>
+            <td>Storage</td>
+            <td colspan="3" id="stockCount"></td>
+        </tr>
+    </table>
+</div>
+</body>
+</body>
+<script>
+
+<!--$(function(){-->
+<!--    getDetail();-->
+<!--});-->
+
+$(document).ready(function () {
+  getDetail();
+});
+
+
+function getDetail(){
+	var goodsId = g_getQueryString("goodsId");
+	var goodUrl = "goods/detail/" + goodsId;
+	$.ajax({
+		url:goodUrl,
+		type:"GET",
+		success:function(data){
+			if(data.code == 0){
+				render(data.data);
+			}else{
+				layer.msg(data.msg);
+			}
+		},
+		error:function(){
+			layer.msg("Server Request Error");
+		}
+	});
+}
+
+
+var quickSaleEventStatus;
+var remainSeconds;
+var goods;
+var user;
+
+function render(detail){
+	quickSaleEventStatus = detail.quickSaleEventStatus; // value can be reached
+	remainSeconds = detail.remainSeconds;
+	goods = detail.goods;
+	user = detail.user;
+
+	if(user){
+		$("#userTip").hide();
+	}
+	$("#goodsName").text(goods.goodsName);
+	$("#goodsImg").attr("src", goods.goodsImg);
+	$("#startTime").text(new Date(goods.startDate).format("yyyy-MM-dd hh:mm:ss"));
+
+	$("#remainSeconds").val(remainSeconds);
+	$("#goodsId").val(goods.id);
+
+	$("#goodsPrice").text(goods.goodsPrice);
+	$("#quicksalePrice").text(goods.quicksalePrice);
+	$("#stockCount").text(goods.stockCount);
+
+	countDown();
+}
+
+function countDown(){
+	var timeout;
+	if(remainSeconds > 0){ // Counting down for how long the event will begin
+	    $("#buyButton").attr("disabled", true);
+	    $("#quickSaleTip").html("Event will start after: " + remainSeconds + "s");
+		timeout = setTimeout(function(){
+			$("#countDown").text(remainSeconds - 1);
+			remainSeconds = remainSeconds - 1;
+			countDown();
+		},1000);
+	}else if(remainSeconds == 0){ // Event under the way
+		$("#buyButton").attr("disabled", false); // ok
+		if(timeout){
+			clearTimeout(timeout);
+		}
+		$("#quickSaleTip").html("<b>Quick Sale Event is Happening</b>");
+
+	}else{ // Event expired
+		$("#buyButton").attr("disabled", true);
+		$("#quickSaleTip").html("<b>Event Expired</b>");
+	}
+}
+
+function doQuickSale(){
+	$.ajax({
+	    type:"POST",
+		url:"/quicksale/do_quicksale",
+		data:{
+			goodsId:goods.id,
+		},
+		success:function(data){
+			if(data.code == 0){
+				window.location.href="/order_detail.htm?orderId="+data.data.id;
+			}else{
+				layer.msg(data.msg);
+			}
+		},
+		error:function(){
+			layer.msg("Server Request Error");
+		}
+	});
+}
+
+
+</script>
+</html>
