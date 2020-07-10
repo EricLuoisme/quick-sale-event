@@ -87,4 +87,25 @@ public class FunctionalTesterController {
         sender.send("rabbitmq testing");
         return Result.success("Good day, RabbitMQ");
     }
+
+    @RequestMapping("/mq/topic")
+    @ResponseBody
+    public Result<String> topic() {
+        sender.sendTopic("topic sending testing");
+        return Result.success("Good day, RabbitMQ");
+    }
+
+    @RequestMapping("/mq/fanout")
+    @ResponseBody
+    public Result<String> fanout() {
+        sender.sendFanout("topic sending testing");
+        return Result.success("Good day, RabbitMQ");
+    }
+
+//    @RequestMapping("/mq/header")
+//    @ResponseBody
+//    public Result<String> header() {
+//        sender.sendHeaders("topic sending testing");
+//        return Result.success("Good day, RabbitMQ");
+//    }
 }
