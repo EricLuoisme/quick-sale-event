@@ -19,34 +19,44 @@ public class MQSender {
         this.amqpTemplate = amqpTemplate;
     }
 
-    /**
-     * Direct Mode
-     */
-    public void send(Object message) {
-        String msg = BeanStringConvert.beanToString(message);
-        log.info("send message:" + message);
-        amqpTemplate.convertAndSend(MQConfig.QUEUE, msg);
+    public void sendQuickSaleMsg(QuickSaleMsg msgObj) {
+        /**
+         * Using direct mode
+         */
+        String msg = BeanStringConvert.beanToString(msgObj);
+        log.info("send message:" + msg);
+        amqpTemplate.convertAndSend(MQConfig.QUICKSALE_QUEUE, msg);
     }
 
-    /**
-     * Topic Mode
-     */
-    public void sendTopic(Object message) {
-        String msg = BeanStringConvert.beanToString(message);
-        log.info("send topic message:" + message);
-        amqpTemplate.convertAndSend(MQConfig.TOPIC_EXCHANGE, "topic.key1", msg + "1");
-        amqpTemplate.convertAndSend(MQConfig.TOPIC_EXCHANGE, "topic.key2", msg + "2");
-    }
 
-    /**
-     * Fanout Mode (broadcast)
-     */
-    public void sendFanout(Object message) {
-        String msg = BeanStringConvert.beanToString(message);
-        log.info("send fanout message:" + message);
-        amqpTemplate.convertAndSend(MQConfig.FANOUT_EXCHANGE, "", msg);
-    }
-
+//    /**
+//     * Direct Mode
+//     */
+//    public void send(Object message) {
+//        String msg = BeanStringConvert.beanToString(message);
+//        log.info("send message:" + message);
+//        amqpTemplate.convertAndSend(MQConfig.QUEUE, msg);
+//    }
+//
+//    /**
+//     * Topic Mode
+//     */
+//    public void sendTopic(Object message) {
+//        String msg = BeanStringConvert.beanToString(message);
+//        log.info("send topic message:" + message);
+//        amqpTemplate.convertAndSend(MQConfig.TOPIC_EXCHANGE, "topic.key1", msg + "1");
+//        amqpTemplate.convertAndSend(MQConfig.TOPIC_EXCHANGE, "topic.key2", msg + "2");
+//    }
+//
+//    /**
+//     * Fanout Mode (broadcast)
+//     */
+//    public void sendFanout(Object message) {
+//        String msg = BeanStringConvert.beanToString(message);
+//        log.info("send fanout message:" + message);
+//        amqpTemplate.convertAndSend(MQConfig.FANOUT_EXCHANGE, "", msg);
+//    }
+//
 //    /**
 //     * Headers Mode (broadcast)
 //     */

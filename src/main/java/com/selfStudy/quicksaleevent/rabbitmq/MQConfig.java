@@ -10,75 +10,79 @@ import java.util.Map;
 @Configuration
 public class MQConfig {
 
-    public static final String QUEUE = "queue";
-    public static final String HEADERS_QUEUE = "header.queue";
-    public static final String TOPIC_QUEUE1 = "topic.queue1";
-    public static final String TOPIC_QUEUE2 = "topic.queue2";
-    public static final String TOPIC_EXCHANGE = "topicExchange";
-    public static final String FANOUT_EXCHANGE = "FanoutExchange";
-        public static final String HEADERS_EXCHANGE = "FanoutExchange";
+    public static final String QUICKSALE_QUEUE = "quicksale.queue";
 
-    /**
-     * Direct Mode
-     */
-    @Bean
-    public Queue queue() {
-        return new Queue(QUEUE, true);
-    }
 
-    /**
-     * Direct Mode or Topic Mode all need this Queue
-     */
-    @Bean
-    public Queue topicQueue1() {
-        return new Queue(TOPIC_QUEUE1, true);
-    }
 
-    @Bean
-    public Queue topicQueue2() {
-        return new Queue(TOPIC_QUEUE2, true);
-    }
+//    public static final String QUEUE = "queue";
+//    public static final String HEADERS_QUEUE = "header.queue";
+//    public static final String TOPIC_QUEUE1 = "topic.queue1";
+//    public static final String TOPIC_QUEUE2 = "topic.queue2";
+//    public static final String TOPIC_EXCHANGE = "topicExchange";
+//    public static final String FANOUT_EXCHANGE = "FanoutExchange";
+//    public static final String HEADERS_EXCHANGE = "FanoutExchange";
+//
+//    /**
+//     * Direct Mode
+//     */
+//    @Bean
+//    public Queue queue() {
+//        return new Queue(QUEUE, true);
+//    }
+//
+//    /**
+//     * Direct Mode or Topic Mode all need this Queue
+//     */
+//    @Bean
+//    public Queue topicQueue1() {
+//        return new Queue(TOPIC_QUEUE1, true);
+//    }
+//
+//    @Bean
+//    public Queue topicQueue2() {
+//        return new Queue(TOPIC_QUEUE2, true);
+//    }
+//
+//    /**
+//     * Topic Mode
+//     */
+//    @Bean
+//    public TopicExchange topicExchange() {
+//        return new TopicExchange(TOPIC_EXCHANGE);
+//    }
+//
+//    @Bean
+//    public Binding topicBinding1() {
+//        return BindingBuilder.bind(topicQueue1()).to(topicExchange()).with("topic.key1");
+//    }
+//
+//    @Bean
+//    public Binding topicBinding2() {
+//        return BindingBuilder.bind(topicQueue2()).to(topicExchange()).with("topic.#");
+//        // routing key is a matching pattern, where # means 0 or more, * means 1
+//    }
+//
+//    /**
+//     * Fanout Mode (broadcast)
+//     */
+//    @Bean
+//    public FanoutExchange fanoutExchange() {
+//        return new FanoutExchange(FANOUT_EXCHANGE);
+//    }
+//
+//    @Bean
+//    public Binding fanoutBinding1() {
+//        return BindingBuilder.bind(topicQueue1()).to(fanoutExchange());
+//    }
+//
+//    @Bean
+//    public Binding fanoutBinding2() {
+//        return BindingBuilder.bind(topicQueue2()).to(fanoutExchange());
+//    }
 
-    /**
-     * Topic Mode
-     */
-    @Bean
-    public TopicExchange topicExchange() {
-        return new TopicExchange(TOPIC_EXCHANGE);
-    }
-
-    @Bean
-    public Binding topicBinding1() {
-        return BindingBuilder.bind(topicQueue1()).to(topicExchange()).with("topic.key1");
-    }
-
-    @Bean
-    public Binding topicBinding2() {
-        return BindingBuilder.bind(topicQueue2()).to(topicExchange()).with("topic.#");
-        // routing key is a matching pattern, where # means 0 or more, * means 1
-    }
-
-    /**
-     * Fanout Mode (broadcast)
-     */
-    @Bean
-    public FanoutExchange fanoutExchange() {
-        return new FanoutExchange(FANOUT_EXCHANGE);
-    }
-
-    @Bean
-    public Binding fanoutBinding1() {
-        return BindingBuilder.bind(topicQueue1()).to(fanoutExchange());
-    }
-
-    @Bean
-    public Binding fanoutBinding2() {
-        return BindingBuilder.bind(topicQueue2()).to(fanoutExchange());
-    }
-
-    /**
-     * Header Mode
-     */
+//    /**
+//     * Header Mode
+//     */
 //    @Bean
 //    public HeadersExchange headersExchange() {
 //        return new HeadersExchange(HEADERS_EXCHANGE);

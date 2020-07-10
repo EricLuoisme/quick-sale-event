@@ -49,10 +49,10 @@ public class OrderService {
         orderInfo.setUserId(user.getId());
 
         // creat a quick sale order
-        long orderId = orderDao.insert(orderInfo);
+        orderDao.insert(orderInfo);
         QuickSaleOrder quicksaleOrder = new QuickSaleOrder();
         quicksaleOrder.setGoodsId(goods.getId());
-        quicksaleOrder.setOrderId(orderId);
+        quicksaleOrder.setOrderId(orderInfo.getGoodsId());
         quicksaleOrder.setUserId(user.getId());
         orderDao.insertQuickSaleOrder(quicksaleOrder);
 
