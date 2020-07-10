@@ -1,6 +1,7 @@
 package com.selfStudy.quicksaleevent.web.controller;
 
 import com.selfStudy.quicksaleevent.domain.model.User;
+import com.selfStudy.quicksaleevent.rabbitmq.MQSender;
 import com.selfStudy.quicksaleevent.redis.RedisService;
 import com.selfStudy.quicksaleevent.redis.UserKey;
 import com.selfStudy.quicksaleevent.service.UserService;
@@ -13,16 +14,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/demo")
-public class ProjectController {
+public class FunctionalTesterController {
 
     UserService userService;
 
     RedisService redisService; // injected by constructor
 
-    public ProjectController(UserService userService, RedisService redisService) {
+    MQSender sender;
+
+    public FunctionalTesterController(UserService userService, RedisService redisService, MQSender sender) {
         this.userService = userService;
         this.redisService = redisService;
+        this.sender = sender;
     }
+
 
     // REST-api
     @RequestMapping("/hello")
@@ -74,5 +79,12 @@ public class ProjectController {
         user.setName("1111");
         redisService.set(UserKey.getById, "" + 1, user); // UserKey:id1
         return Result.success(true);
+    }
+
+    @RequestMapping("/mq")
+    @ResponseBody
+    public Result<String> mq() {
+        sender.send("rabbitmq testing");
+        return Result.success("Good day, RabbitMQ");
     }
 }
