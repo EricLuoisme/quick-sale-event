@@ -10,5 +10,5 @@ public class QuickSaleUserKey extends BasePrefix {
 
     // only at the first calling, we would create it with the private constructor
     public static QuickSaleUserKey token = new QuickSaleUserKey(TOKEN_EXPIRE, "tk");
-    public static QuickSaleUserKey getById = new QuickSaleUserKey(0, "tk");
+    public static QuickSaleUserKey getById = new QuickSaleUserKey(0, "id");
 }

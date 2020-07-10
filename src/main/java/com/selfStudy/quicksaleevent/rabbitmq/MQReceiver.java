@@ -55,7 +55,7 @@ public class MQReceiver {
             return;
 
         // 4. create Quick Sale order
-        OrderInfo orderInfo = quickSaleService.doSale(user, goodsVO);
+        quickSaleService.doSale(user, goodsVO);
     }
 
 

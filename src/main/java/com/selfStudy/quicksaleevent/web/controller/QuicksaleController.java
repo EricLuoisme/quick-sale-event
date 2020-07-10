@@ -1,8 +1,5 @@
 package com.selfStudy.quicksaleevent.web.controller;
 
-import com.selfStudy.quicksaleevent.domain.model.Goods;
-import com.selfStudy.quicksaleevent.domain.model.OrderInfo;
-import com.selfStudy.quicksaleevent.domain.model.QuickSaleOrder;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.rabbitmq.MQSender;
 import com.selfStudy.quicksaleevent.rabbitmq.QuickSaleMsg;
@@ -15,6 +12,8 @@ import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import com.selfStudy.quicksaleevent.web.result.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +38,8 @@ public class QuicksaleController implements InitializingBean {
     QuickSaleService quickSaleService;
 
     MQSender mqSender;
+
+    private Logger log = LoggerFactory.getLogger(QuicksaleController.class);
 
     private Map<Long, Boolean> localOverMap = new HashMap<>();
 
@@ -116,37 +117,4 @@ public class QuicksaleController implements InitializingBean {
         long result = quickSaleService.getQuicksaleResult(user.getId(), goodsId);
         return Result.success(result);
     }
-
-    @RequestMapping("/do_quicksaleOld")
-    public String listOld(Model model, QuickSaleUser user, @RequestParam("goodsId") long goodsId) {
-
-        model.addAttribute("user", user);
-
-        // 1. check user status
-        if (user == null)
-            return "login"; // user must be login then can purchase an item
-
-        // 2. check storage of this item
-        GoodsVo goodsVO = goodsService.getGoodsVoByGoodsId(goodsId);
-        int stock = goodsVO.getStockCount(); // check stock for quick sale event
-        if (stock <= 0) {
-            model.addAttribute("errmsg", CodeMsg.EVENT_STORAGE_EMPTY.getMsg());
-            return "quicksale_fail";
-        }
-
-        // 3. check whether same user buy more than one spick item in same event
-        QuickSaleOrder order = orderService.getQuickSaleOrderByUserIdGoodsId(user.getId(), goodsId);
-        if (order != null) {
-            model.addAttribute("errmsg", CodeMsg.CANNOT_BUY_TWICE.getMsg());
-            return "quicksale_fail";
-        }
-
-        // Spike Sale Operations
-        OrderInfo orderInfo = quickSaleService.doSale(user, goodsVO);
-        model.addAttribute("orderInfo", orderInfo);
-        model.addAttribute("goods", goodsVO);
-        return "order_detail";
-    }
-
-
 }

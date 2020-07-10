@@ -12,6 +12,10 @@ public class MQConfig {
 
     public static final String QUICKSALE_QUEUE = "quicksale.queue";
 
+    @Bean
+    public Queue queue() {
+        return new Queue(QUICKSALE_QUEUE, true);
+    }
 
 
 //    public static final String QUEUE = "queue";
@@ -21,7 +25,7 @@ public class MQConfig {
 //    public static final String TOPIC_EXCHANGE = "topicExchange";
 //    public static final String FANOUT_EXCHANGE = "FanoutExchange";
 //    public static final String HEADERS_EXCHANGE = "FanoutExchange";
-//
+
 //    /**
 //     * Direct Mode
 //     */
@@ -79,7 +83,7 @@ public class MQConfig {
 //    public Binding fanoutBinding2() {
 //        return BindingBuilder.bind(topicQueue2()).to(fanoutExchange());
 //    }
-
+//
 //    /**
 //     * Header Mode
 //     */
@@ -101,5 +105,4 @@ public class MQConfig {
 //        return BindingBuilder.bind(headersQueue()).to(headersExchange()).whereAll(map).match();
 //        // only sending the data when the map satisfied the value we set
 //    }
-
 }

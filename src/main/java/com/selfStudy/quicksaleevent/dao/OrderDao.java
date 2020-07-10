@@ -19,5 +19,5 @@ public interface OrderDao {
     public void insertQuickSaleOrder(QuickSaleOrder miaoshaOrder);
 
     @Select("select * from order_info where id = #{orderId}")
-    OrderInfo getOrderById(@Param("orderId") long orderId);
+    public OrderInfo getOrderById(@Param("orderId") long orderId);
 }

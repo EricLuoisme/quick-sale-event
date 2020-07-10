@@ -7,6 +7,8 @@ import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.redis.OrderKey;
 import com.selfStudy.quicksaleevent.redis.RedisService;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,8 @@ public class OrderService {
     OrderDao orderDao;
 
     RedisService redisService;
+
+    Logger log = LoggerFactory.getLogger(OrderService.class);
 
     public OrderService(OrderDao orderDao, RedisService redisService) {
         this.orderDao = orderDao;
@@ -52,10 +56,10 @@ public class OrderService {
         orderDao.insert(orderInfo);
         QuickSaleOrder quicksaleOrder = new QuickSaleOrder();
         quicksaleOrder.setGoodsId(goods.getId());
-        quicksaleOrder.setOrderId(orderInfo.getGoodsId());
+        quicksaleOrder.setOrderId(orderInfo.getId()); // be careful, not getGoodId here
         quicksaleOrder.setUserId(user.getId());
         orderDao.insertQuickSaleOrder(quicksaleOrder);
-
+;
         // set key into the Redis cache
         redisService.set(OrderKey.getQuickSaleOrderByUidGid, "" + user.getId() + "_" + goods.getId(), quicksaleOrder);
 

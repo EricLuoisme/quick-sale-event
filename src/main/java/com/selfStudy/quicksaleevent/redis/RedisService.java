@@ -13,7 +13,7 @@ public class RedisService {
 
     JedisPool jedisPool; // injected by constructor
 
-//    private Logger log = LoggerFactory.getLogger(RedisService.class); // for showing the key we set into Redis
+    private Logger log = LoggerFactory.getLogger(RedisService.class); // for showing the key we set into Redis
 
     public RedisService(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
@@ -31,7 +31,7 @@ public class RedisService {
                 return false;
             // create a real key that combine the belonging info
             String realKey = prefix.getPrefix() + key;
-//            log.info(realKey); // for showing the key we set into Redis
+            log.info("set key : " + realKey); // for showing the key we set into Redis
             int seconds = prefix.expireSeconds();
             if (seconds <= 0)
                 jedis.set(realKey, strVal); // never expire
@@ -53,6 +53,8 @@ public class RedisService {
             jedis = jedisPool.getResource();
             String realKey = prefix.getPrefix() + key;
             String str = jedis.get(realKey);
+            log.info("neet to get key : " + realKey);
+            log.info("real we get key : " + str);
             T t = BeanStringConvert.stringToBean(str, clazz);
             return t;
         } finally {
