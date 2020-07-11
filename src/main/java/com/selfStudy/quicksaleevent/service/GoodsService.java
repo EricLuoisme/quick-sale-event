@@ -10,24 +10,34 @@ import java.util.List;
 @Service
 public class GoodsService {
 
-    GoodsDao goodsDAO;
+    GoodsDao goodsDao;
 
-    public GoodsService(GoodsDao goodsDAO) {
-        this.goodsDAO = goodsDAO;
+    public GoodsService(GoodsDao goodsDao) {
+        this.goodsDao = goodsDao;
     }
 
+
     public List<GoodsVo> listGoodsVo() {
-        return goodsDAO.listGoodsVO();
+        return goodsDao.listGoodsVO();
     }
 
     public GoodsVo getGoodsVoByGoodsId(long goodsId) {
-        return goodsDAO.getGoodsVoByGoodsId(goodsId);
+        return goodsDao.getGoodsVoByGoodsId(goodsId);
     }
 
     public boolean reduceStock(GoodsVo goods) {
         QuickSaleGoods g = new QuickSaleGoods();
         g.setGoodsId(goods.getId());
-        int stock = goodsDAO.reduceStock(g);
+        int stock = goodsDao.reduceStock(g);
         return stock > 0;
+    }
+
+    public void resetStock(List<GoodsVo> goodsList) {
+        for (GoodsVo goods : goodsList) {
+            QuickSaleGoods g = new QuickSaleGoods();
+            g.setGoodsId(goods.getId());
+            g.setStockCount(goods.getStockCount());
+            goodsDao.resetStock(g);
+        }
     }
 }

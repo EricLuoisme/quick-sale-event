@@ -9,6 +9,8 @@ import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class QuickSaleService {
 
@@ -65,6 +67,14 @@ public class QuickSaleService {
     }
 
     private boolean getGoodsOver(long goodsId) {
+        /**
+         * check whether the good is out of stock, by checking whether it's exist in Redis
+         */
         return redisService.exist(QuickSaleKey.isOutOfStock, "" + goodsId);
+    }
+
+    public void reset(List<GoodsVo> goodsList) {
+        goodsService.resetStock(goodsList);
+        orderService.deleteOrders();
     }
 }

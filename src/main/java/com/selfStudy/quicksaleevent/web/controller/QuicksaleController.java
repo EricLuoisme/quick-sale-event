@@ -4,6 +4,8 @@ import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.rabbitmq.MQSender;
 import com.selfStudy.quicksaleevent.rabbitmq.QuickSaleMsg;
 import com.selfStudy.quicksaleevent.redis.GoodsKey;
+import com.selfStudy.quicksaleevent.redis.OrderKey;
+import com.selfStudy.quicksaleevent.redis.QuickSaleKey;
 import com.selfStudy.quicksaleevent.redis.RedisService;
 import com.selfStudy.quicksaleevent.service.GoodsService;
 import com.selfStudy.quicksaleevent.service.OrderService;
@@ -116,5 +118,23 @@ public class QuicksaleController implements InitializingBean {
 
         long result = quickSaleService.getQuicksaleResult(user.getId(), goodsId);
         return Result.success(result);
+    }
+
+    /**
+     * For reset the test
+     */
+    @RequestMapping(value = "/reset", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<Boolean> reset(Model model) {
+        List<GoodsVo> goodsList = goodsService.listGoodsVo();
+        for (GoodsVo goods : goodsList) {
+            goods.setStockCount(10);
+            redisService.set(GoodsKey.getQuickSalesGoodsStock, "" + goods.getId(), 10);
+            localOverMap.put(goods.getId(), false);
+        }
+        redisService.delete(OrderKey.getQuickSaleOrderByUidGid);
+        redisService.delete(QuickSaleKey.isOutOfStock);
+        quickSaleService.reset(goodsList);
+        return Result.success(true);
     }
 }

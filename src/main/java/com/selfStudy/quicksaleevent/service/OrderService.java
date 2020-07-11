@@ -59,10 +59,14 @@ public class OrderService {
         quicksaleOrder.setOrderId(orderInfo.getId()); // be careful, not getGoodId here
         quicksaleOrder.setUserId(user.getId());
         orderDao.insertQuickSaleOrder(quicksaleOrder);
-;
+        ;
         // set key into the Redis cache
         redisService.set(OrderKey.getQuickSaleOrderByUidGid, "" + user.getId() + "_" + goods.getId(), quicksaleOrder);
-
         return orderInfo;
+    }
+
+    public void deleteOrders() {
+        orderDao.deleteOrders();
+        orderDao.deleteMiaoshaOrders();
     }
 }
