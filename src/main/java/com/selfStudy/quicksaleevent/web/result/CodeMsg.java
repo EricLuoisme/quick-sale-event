@@ -8,6 +8,7 @@ public class CodeMsg {
     public static CodeMsg SUCCESS = new CodeMsg(0, "success");
     public static CodeMsg SERVER_ERROR = new CodeMsg(500100, "server error");
     public static CodeMsg BIND_ERROR = new CodeMsg(500101, "Bind Error : %s");
+    public static CodeMsg REQUEST_ILLEGAL = new CodeMsg(500102, "Invalid request");
 
     // Login Module Errors # 500200
     public static CodeMsg SESSION_ERROR = new CodeMsg(500210, "session not exist or expired");
@@ -22,7 +23,7 @@ public class CodeMsg {
     // Order Module Errors # 500400
     public static CodeMsg ORDER_NOT_EXIST = new CodeMsg(500400, "Order is not exist");
 
-    // Spick Module Errors # 500500
+    // Quick Sale Module Errors # 500500
     public static CodeMsg EVENT_STORAGE_EMPTY = new CodeMsg(500500, "No more storage of current goods in this event");
     public static CodeMsg CANNOT_BUY_TWICE = new CodeMsg(500501, "A user cannot buy same item twice in same event");
 

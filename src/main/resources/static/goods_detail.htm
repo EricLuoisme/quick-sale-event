@@ -43,7 +43,7 @@
                 <span id="quickSaleTip"></span>
             </td>
             <td>
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doQuickSale()">Buy
+                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="getQuickSalePath()">Buy
                 </button>
                 <input type="hidden" name="goodsId" id="goodsId"/>
             </td>
@@ -66,6 +66,34 @@
 </body>
 <script>
 
+var quickSaleEventStatus;
+var remainSeconds;
+var goods;
+var user;
+
+function getQuickSalePath(){
+	var goodsId = goods.id;
+	g_showLoading();
+	$.ajax({
+		url:"/quicksale/path",
+		type:"GET",
+		data:{
+			goodsId:goodsId
+		},
+		success:function(data){
+			if(data.code == 0){
+				var path = data.data;
+				doQuickSale(path);
+			}else{
+				layer.msg(data.msg);
+			}
+		},
+		error:function(){
+			layer.msg("客户端请求有误");
+		}
+	});
+}
+
 function getQuicksaleResult(goodsId){
 	g_showLoading();
 	$.ajax({
@@ -82,7 +110,7 @@ function getQuicksaleResult(goodsId){
 				}else if(result == 0){ // keep polling
 					setTimeout(function(){
 						getQuicksaleResult(goodsId);
-					}, 50);
+					}, 200);
 				}else{
 					layer.confirm("Congratulation! You successfully purchased this item. Do you want to check the order detail?", {btn:["Yes","No"]},
 							function(){
@@ -102,16 +130,16 @@ function getQuicksaleResult(goodsId){
 	});
 }
 
-function doQuickSale(){
+function doQuickSale(path){
+    var realpath = "/quicksale/" + path + "/do_quicksale";
 	$.ajax({
-	    url:"/quicksale/do_quicksale",
+	    url:realpath,
 	    type:"POST",
 		data:{
 			goodsId:goods.id,
 		},
 		success:function(data){
 			if(data.code == 0){
-				// window.location.href="/order_detail.htm?orderId="+data.data.id;
 				getQuicksaleResult(goods.id);
 			}else{
 				layer.msg(data.msg);
@@ -146,12 +174,6 @@ function getDetail(){
 		}
 	});
 }
-
-
-var quickSaleEventStatus;
-var remainSeconds;
-var goods;
-var user;
 
 function render(detail){
 	quickSaleEventStatus = detail.quickSaleEventStatus; // value can be reached

@@ -1,10 +1,13 @@
 package com.selfStudy.quicksaleevent.service;
 
+import com.alibaba.druid.util.StringUtils;
 import com.selfStudy.quicksaleevent.domain.model.OrderInfo;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleOrder;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.redis.QuickSaleKey;
 import com.selfStudy.quicksaleevent.redis.RedisService;
+import com.selfStudy.quicksaleevent.utils.MD5Util;
+import com.selfStudy.quicksaleevent.utils.UUIDUtil;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +76,30 @@ public class QuickSaleService {
         return redisService.exist(QuickSaleKey.isOutOfStock, "" + goodsId);
     }
 
+    public String createQuicksalePath(QuickSaleUser user, long goodsId) {
+        /**
+         * for setting path
+         */
+        String str = MD5Util.md5(UUIDUtil.uuid() + "123456");
+        redisService.set(QuickSaleKey.getQuicksalePath, "" + user.getId() + "_" + goodsId, str);
+        return str;
+    }
+
+    public boolean checkPath(QuickSaleUser user, long goodsId, String path) {
+        /**
+         * for request path validation
+         */
+
+        if (user == null || path == null)
+            return false;
+        String pathGet = redisService.get(QuickSaleKey.getQuicksalePath, "" + user.getId() + "_" + goodsId, String.class);
+        return pathGet.equals(path);
+    }
+
     public void reset(List<GoodsVo> goodsList) {
+        /**
+         * for quicker reset order info on pressure test
+         */
         goodsService.resetStock(goodsList);
         orderService.deleteOrders();
     }
