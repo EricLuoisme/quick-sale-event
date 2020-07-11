@@ -38,7 +38,7 @@ public class MQReceiver {
     public void receive(String message) {
 
         // 1. get order info from Rabbitmq's polling
-        log.info("received messages:" + message);
+//        log.info("received messages:" + message);
         QuickSaleMsg quickSaleMsg = BeanStringConvert.stringToBean(message, QuickSaleMsg.class);
         QuickSaleUser user = quickSaleMsg.getUser();
         long goodsId = quickSaleMsg.getGoodsId();

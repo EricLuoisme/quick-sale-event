@@ -24,7 +24,7 @@ public class MQSender {
          * Using direct mode
          */
         String msg = BeanStringConvert.beanToString(msgObj);
-        log.info("send message:" + msg);
+//        log.info("send message:" + msg);
         amqpTemplate.convertAndSend(MQConfig.QUICKSALE_QUEUE, msg);
     }
 
