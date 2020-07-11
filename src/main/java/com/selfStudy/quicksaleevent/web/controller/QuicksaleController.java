@@ -1,5 +1,6 @@
 package com.selfStudy.quicksaleevent.web.controller;
 
+import com.selfStudy.quicksaleevent.domain.model.QuickSaleOrder;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.rabbitmq.MQSender;
 import com.selfStudy.quicksaleevent.rabbitmq.QuickSaleMsg;
@@ -81,7 +82,7 @@ public class QuicksaleController implements InitializingBean {
         if (user == null)
             return Result.error(CodeMsg.SESSION_ERROR);
 
-        // 2. use memory temp to reduce times of visiting Redis
+        // 2. use memory temp to reduce times of visiting Redis (if stock is empty, stopOrNot should be true)
         Boolean stopOrNot = localOverMap.get(goodsId);
         if (stopOrNot)
             return Result.error(CodeMsg.EVENT_STORAGE_EMPTY);
@@ -93,7 +94,13 @@ public class QuicksaleController implements InitializingBean {
             return Result.error(CodeMsg.EVENT_STORAGE_EMPTY);
         }
 
-        // 4. adding the order into Rabbitmq
+        // 4. checking whether this user repeat buy same good more than once
+        QuickSaleOrder order = orderService.getQuickSaleOrderByUserIdGoodsId(user.getId(), goodsId);
+        if(order != null) {
+            return Result.error(CodeMsg.CANNOT_BUY_TWICE);
+        }
+
+        // 5. adding the order into Rabbitmq
         QuickSaleMsg msgObj = new QuickSaleMsg();
         msgObj.setUser(user);
         msgObj.setGoodsId(goodsId);
