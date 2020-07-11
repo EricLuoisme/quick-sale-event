@@ -25,7 +25,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +83,9 @@ public class QuicksaleController implements InitializingBean {
     //    @AccessLimit(seconds=5, maxCount=5, needLogin=true)
     @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getQuicksalePath(Model model, QuickSaleUser user, @RequestParam("goodsId") long goodsId) {
+    public Result<String> getQuicksalePath(Model model, QuickSaleUser user,
+                                           @RequestParam("goodsId") long goodsId,
+                                           @RequestParam("verifyCode") int verifyCode) {
         /**
          * For getting path before the user purchase goods
          */
@@ -88,7 +94,13 @@ public class QuicksaleController implements InitializingBean {
             return Result.error(CodeMsg.SESSION_ERROR);
         }
 
-        // do validation
+        // 1. do verify code validation
+        boolean check = quickSaleService.checkVerifyCode(user, goodsId, verifyCode);
+        if (!check) {
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
+
+        // 2. do path validation
         String path = quickSaleService.createQuicksalePath(user, goodsId);
         return Result.success(path);
     }
@@ -140,6 +152,28 @@ public class QuicksaleController implements InitializingBean {
         return Result.success(0);
     }
 
+    @RequestMapping(value = "/verifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getQuicksaleVerifyCod(HttpServletResponse response, QuickSaleUser user,
+                                                @RequestParam("goodsId") long goodsId) {
+        /**
+         * draw the verify code
+         */
+        if (user == null) {
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        try {
+            BufferedImage image = quickSaleService.createVerifyCode(user, goodsId);
+            OutputStream out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+            out.close();
+            return null; // the data is sent by output stream
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(CodeMsg.QUICK_SALE_FAIL);
+        }
+    }
 
     @RequestMapping(value = "/result", method = RequestMethod.GET)
     @ResponseBody

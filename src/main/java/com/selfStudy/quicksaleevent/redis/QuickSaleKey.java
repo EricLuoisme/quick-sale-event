@@ -8,4 +8,5 @@ public class QuickSaleKey extends BasePrefix {
 
     public static QuickSaleKey isOutOfStock = new QuickSaleKey(0, "goos"); // good out of stock, should not expired
     public static QuickSaleKey getQuicksalePath = new QuickSaleKey(60, "path");
+    public static QuickSaleKey getQuicksaleVerifyCode = new QuickSaleKey(300, "vercd");
 }

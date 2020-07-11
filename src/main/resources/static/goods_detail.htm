@@ -43,9 +43,17 @@
                 <span id="quickSaleTip"></span>
             </td>
             <td>
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="getQuickSalePath()">Buy
-                </button>
-                <input type="hidden" name="goodsId" id="goodsId"/>
+                <div class="row">
+                    <div class="form-inline">
+                        <img id="verifyCodeImg" width="80" height="32" style="display:none"
+                             onclick="refreshVerifyCode()"/>
+                        <input id="verifyCode" class="form-control" style="display:none"/>
+                        <button class="btn btn-primary btn-block" type="button" id="buyButton"
+                                onclick="getQuickSalePath()">Buy
+                        </button>
+                        <input type="hidden" name="goodsId" id="goodsId"/>
+                    </div>
+                </div>
             </td>
         </tr>
         <tr>
@@ -78,7 +86,8 @@ function getQuickSalePath(){
 		url:"/quicksale/path",
 		type:"GET",
 		data:{
-			goodsId:goodsId
+			goodsId:goodsId,
+			verifyCode:$("#verifyCode").val()
 		},
 		success:function(data){
 			if(data.code == 0){
@@ -214,11 +223,20 @@ function countDown(){
 			clearTimeout(timeout);
 		}
 		$("#quickSaleTip").html("<b>Quick Sale Event is Happening</b>");
+		$("#verifyCodeImg").attr("src", "/quicksale/verifyCode?goodsId=" + goods.id);
+		$("#verifyCodeImg").show();
+		$("#verifyCode").show();
 
 	}else{ // Event expired
 		$("#buyButton").attr("disabled", true);
 		$("#quickSaleTip").html("<b>Event Expired</b>");
+		$("#verifyCodeImg").hide();
+		$("#verifyCode").hide();
 	}
+}
+
+function refreshVerifyCode(){
+	$("#verifyCodeImg").attr("src", "/quicksale/verifyCode?goodsId=" + goods.id + "&timestamp=" + new Date().getTime());
 }
 
 

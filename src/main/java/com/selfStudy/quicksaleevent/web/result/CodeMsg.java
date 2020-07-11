@@ -26,6 +26,7 @@ public class CodeMsg {
     // Quick Sale Module Errors # 500500
     public static CodeMsg EVENT_STORAGE_EMPTY = new CodeMsg(500500, "No more storage of current goods in this event");
     public static CodeMsg CANNOT_BUY_TWICE = new CodeMsg(500501, "A user cannot buy same item twice in same event");
+    public static CodeMsg QUICK_SALE_FAIL = new CodeMsg(500502, "quick sale fail");
 
 
     private CodeMsg(int code, String msg) {
