@@ -1,6 +1,7 @@
 package com.selfStudy.quicksaleevent.config;
 
 import com.alibaba.druid.util.StringUtils;
+import com.selfStudy.quicksaleevent.access.UserContext;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
 import org.springframework.core.MethodParameter;
@@ -16,6 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
+    /**
+     * By using this resolver, we do not need to extract user from HTTP request
+     * or Cookies or Redis in every web controller
+     */
 
     QuickSaleUserService quickSaleUserService;
 
@@ -30,35 +35,11 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         return clazz == QuickSaleUser.class;
     }
 
-
     @Override
-    public Object resolveArgument(MethodParameter methodParameter,
-                                  ModelAndViewContainer modelAndViewContainer,
-                                  NativeWebRequest nativeWebRequest,
-                                  WebDataBinderFactory webDataBinderFactory) throws Exception {
-
-        HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
-
-        String paramToken = request.getParameter(QuickSaleUserService.COOKIE_NAME_TOKEN);
-        String cookieToken = getCookieValue(request, QuickSaleUserService.COOKIE_NAME_TOKEN);
-
-        if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken))
-            return null;
-
-        String token = StringUtils.isEmpty(paramToken) ? cookieToken : paramToken;
-        QuickSaleUser user = quickSaleUserService.getByToken(response, token);
-        return user;
-    }
-
-    private String getCookieValue(HttpServletRequest request, String cookieNameToken) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null || cookies.length <= 0)
-            return null;
-        for (Cookie ck : cookies) {
-            if (ck.getName().equals(cookieNameToken))
-                return ck.getValue();
-        }
-        return null;
+    public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer,
+                                  NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
+        // Interceptor would perform operations first,
+        // which means we can get these created thread-wise variables, no longer need to retrieve from Redis
+        return UserContext.getUser();
     }
 }

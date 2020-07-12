@@ -9,6 +9,7 @@ public class CodeMsg {
     public static CodeMsg SERVER_ERROR = new CodeMsg(500100, "server error");
     public static CodeMsg BIND_ERROR = new CodeMsg(500101, "Bind Error : %s");
     public static CodeMsg REQUEST_ILLEGAL = new CodeMsg(500102, "Invalid request");
+    public static CodeMsg ACCESS_LIMIT_REACHED = new CodeMsg(500103, "Over-visiting");
 
     // Login Module Errors # 500200
     public static CodeMsg SESSION_ERROR = new CodeMsg(500210, "session not exist or expired");

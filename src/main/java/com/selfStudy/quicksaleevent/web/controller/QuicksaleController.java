@@ -1,13 +1,11 @@
 package com.selfStudy.quicksaleevent.web.controller;
 
+import com.selfStudy.quicksaleevent.access.AccessLimit;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleOrder;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleUser;
 import com.selfStudy.quicksaleevent.rabbitmq.MQSender;
 import com.selfStudy.quicksaleevent.rabbitmq.QuickSaleMsg;
-import com.selfStudy.quicksaleevent.redis.GoodsKey;
-import com.selfStudy.quicksaleevent.redis.OrderKey;
-import com.selfStudy.quicksaleevent.redis.QuickSaleKey;
-import com.selfStudy.quicksaleevent.redis.RedisService;
+import com.selfStudy.quicksaleevent.redis.*;
 import com.selfStudy.quicksaleevent.service.GoodsService;
 import com.selfStudy.quicksaleevent.service.OrderService;
 import com.selfStudy.quicksaleevent.service.QuickSaleService;
@@ -79,17 +77,39 @@ public class QuicksaleController implements InitializingBean {
         }
     }
 
+    @RequestMapping(value = "/verifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getQuicksaleVerifyCod(HttpServletResponse response, QuickSaleUser user,
+                                                @RequestParam("goodsId") long goodsId) {
+        /**
+         * draw the verify code
+         */
+        if (user == null) {
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        try {
+            BufferedImage image = quickSaleService.createVerifyCode(user, goodsId);
+            OutputStream out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+            out.close();
+            return null; // the data is sent by output stream
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(CodeMsg.QUICK_SALE_FAIL);
+        }
+    }
 
-    //    @AccessLimit(seconds=5, maxCount=5, needLogin=true)
+    @AccessLimit(seconds=5, maxCount=5, needLogin=true)
     @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getQuicksalePath(Model model, QuickSaleUser user,
+    public Result<String> getQuicksalePath(HttpServletRequest request, QuickSaleUser user,
                                            @RequestParam("goodsId") long goodsId,
-                                           @RequestParam("verifyCode") int verifyCode) {
+                                           @RequestParam(value = "verifyCode", defaultValue = "0") int verifyCode) {
+        // here default value is for testing 'reach visit limit'
         /**
          * For getting path before the user purchase goods
          */
-        model.addAttribute("user", user);
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
         }
@@ -104,7 +124,6 @@ public class QuicksaleController implements InitializingBean {
         String path = quickSaleService.createQuicksalePath(user, goodsId);
         return Result.success(path);
     }
-
 
     @RequestMapping(value = "/{path}/do_quicksale", method = RequestMethod.POST)
     @ResponseBody
@@ -150,29 +169,6 @@ public class QuicksaleController implements InitializingBean {
         mqSender.sendQuickSaleMsg(msgObj);
 
         return Result.success(0);
-    }
-
-    @RequestMapping(value = "/verifyCode", method = RequestMethod.GET)
-    @ResponseBody
-    public Result<String> getQuicksaleVerifyCod(HttpServletResponse response, QuickSaleUser user,
-                                                @RequestParam("goodsId") long goodsId) {
-        /**
-         * draw the verify code
-         */
-        if (user == null) {
-            return Result.error(CodeMsg.SESSION_ERROR);
-        }
-        try {
-            BufferedImage image = quickSaleService.createVerifyCode(user, goodsId);
-            OutputStream out = response.getOutputStream();
-            ImageIO.write(image, "JPEG", out);
-            out.flush();
-            out.close();
-            return null; // the data is sent by output stream
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error(CodeMsg.QUICK_SALE_FAIL);
-        }
     }
 
     @RequestMapping(value = "/result", method = RequestMethod.GET)
