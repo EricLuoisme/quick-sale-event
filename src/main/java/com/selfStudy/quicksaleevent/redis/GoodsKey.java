@@ -2,7 +2,7 @@ package com.selfStudy.quicksaleevent.redis;
 
 public class GoodsKey extends BasePrefix {
 
-    private static final int PAGE_CACHE_EXPIRED = 60; // 1 min
+    private static final int PAGE_CACHE_EXPIRED = 5;
 
     private GoodsKey(int expireSeconds, String prefix) {
         super(expireSeconds, prefix);

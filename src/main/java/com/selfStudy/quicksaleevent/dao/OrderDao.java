@@ -4,6 +4,8 @@ import com.selfStudy.quicksaleevent.domain.model.OrderInfo;
 import com.selfStudy.quicksaleevent.domain.model.QuickSaleOrder;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 @Mapper
 public interface OrderDao {
 
@@ -26,4 +28,7 @@ public interface OrderDao {
 
     @Delete("delete from quicksale_order")
     public void deleteMiaoshaOrders();
+
+    @Select("select * from quicksale_order where goods_id=#{goodsId}")
+    public List<QuickSaleOrder> listByGoodsId(@Param("goodsId") long goodsId);
 }

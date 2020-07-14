@@ -10,14 +10,9 @@ import com.selfStudy.quicksaleevent.service.GoodsService;
 import com.selfStudy.quicksaleevent.service.OrderService;
 import com.selfStudy.quicksaleevent.service.QuickSaleService;
 import com.selfStudy.quicksaleevent.service.QuickSaleUserService;
-import com.selfStudy.quicksaleevent.utils.MD5Util;
-import com.selfStudy.quicksaleevent.utils.UUIDUtil;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
 import com.selfStudy.quicksaleevent.web.result.CodeMsg;
 import com.selfStudy.quicksaleevent.web.result.Result;
-import org.apache.ibatis.annotations.Param;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,9 +43,8 @@ public class QuicksaleController implements InitializingBean {
 
     MQSender mqSender;
 
-    private Logger log = LoggerFactory.getLogger(QuicksaleController.class);
-
-    private Map<Long, Boolean> localOverMap = new HashMap<>();
+    private static HashMap<Long, Integer> stockMap =  new HashMap<>(); // store original stock before quick sale
+    private Map<Long, Boolean> localOverMap = new HashMap<>(); // if a quick sale good's is out of stock, we can just check this boolean result
 
     public QuicksaleController(RedisService redisService, QuickSaleUserService quickSaleUserService,
                                GoodsService goodsService, OrderService orderService,
@@ -72,6 +66,7 @@ public class QuicksaleController implements InitializingBean {
         if (goodsVoList != null) {
             for (GoodsVo good : goodsVoList) {
                 redisService.set(GoodsKey.getQuickSalesGoodsStock, "" + good.getId(), good.getStockCount()); // save stock number in Redis
+                stockMap.put(good.getId(), good.getStockCount());
                 localOverMap.put(good.getId(), false); // false means : this good can still be purchasing
             }
         }
@@ -130,7 +125,7 @@ public class QuicksaleController implements InitializingBean {
     public Result<Integer> quicksale(Model model, QuickSaleUser user,
                                      @RequestParam("goodsId") long goodsId, @PathVariable("path") String path) {
         /**
-         * Original QPS : 304
+         * Original QPS : 270
          * Improved QPS : 540
          */
         model.addAttribute("user", user);
@@ -187,6 +182,17 @@ public class QuicksaleController implements InitializingBean {
 
         long result = quickSaleService.getQuicksaleResult(user.getId(), goodsId);
         return Result.success(result);
+    }
+
+    public static int getGoodsStockOriginal(long goodsId) {
+        /**
+         * Get good's original stock
+         */
+        Integer stock = stockMap.get(goodsId);
+        if(stock == null) {
+            return 0;
+        }
+        return stock;
     }
 
     @RequestMapping(value = "/reset", method = RequestMethod.GET)

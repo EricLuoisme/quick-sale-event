@@ -8,6 +8,7 @@ import com.selfStudy.quicksaleevent.redis.RedisService;
 import com.selfStudy.quicksaleevent.utils.MD5Util;
 import com.selfStudy.quicksaleevent.utils.UUIDUtil;
 import com.selfStudy.quicksaleevent.vo.GoodsVo;
+import com.selfStudy.quicksaleevent.web.controller.QuicksaleController;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class QuickSaleService {
 
 
     @Transactional
-    public OrderInfo doSale(QuickSaleUser user, GoodsVo goods) {
+    public OrderInfo doQuicksale(QuickSaleUser user, GoodsVo goods) {
         /**
          * simulating the purchase operation
          */
@@ -49,7 +50,6 @@ public class QuickSaleService {
         }
     }
 
-
     public long getQuicksaleResult(Long userId, long goodsId) {
         /**
          * return purchase result
@@ -59,13 +59,41 @@ public class QuickSaleService {
             return order.getOrderId();
         } else {
             boolean outOfStock = getGoodsOver(goodsId);
-            if (outOfStock)
-                return -1;
-            else
-                return 0;
+            if (!outOfStock)
+                return 0; // still need to wait the result
+            else {
+                // if the stock is over, but the order might still inside the rabbitmq
+                // then we can check total number of order and this good's number to judge whether this user
+                // successfully purchased or not
+                List<QuickSaleOrder> orders = orderService.getAllQuicksaleOrdersByGoodsId(goodsId);
+                if(orders == null || orders.size() < QuicksaleController.getGoodsStockOriginal(goodsId)){
+                    return 0; // still need to wait
+                }else { // or else, try to find this user's order
+                    QuickSaleOrder o = get(orders, userId);
+                    if(o != null) {
+                        return o.getOrderId(); // successfully purchased
+                    }else {
+                        return -1; // bad luck
+                    }
+                }
+            }
         }
     }
 
+    private QuickSaleOrder get(List<QuickSaleOrder> orders, Long userId) {
+        /**
+         * get order by user's id
+         */
+        if(orders == null || orders.size() <= 0) {
+            return null;
+        }
+        for(QuickSaleOrder order : orders) {
+            if(order.getUserId().equals(userId)) {
+                return order;
+            }
+        }
+        return null;
+    }
 
     private void setGoodsOver(Long goodsId) {
         /**
@@ -131,7 +159,7 @@ public class QuickSaleService {
         g.setFont(new Font("Candara", Font.BOLD, 24));
         g.drawString(verifyCode, 8, 24);
         g.dispose();
-        //把验证码存到redis中
+        // cache verify code into Redis
         int rnd = calc(verifyCode);
         redisService.set(QuickSaleKey.getQuicksaleVerifyCode, user.getId() + "," + goodsId, rnd);
         // output image

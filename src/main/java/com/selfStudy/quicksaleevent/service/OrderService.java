@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -27,6 +28,7 @@ public class OrderService {
         this.orderDao = orderDao;
         this.redisService = redisService;
     }
+
 
     public QuickSaleOrder getQuickSaleOrderByUserIdGoodsId(long userId, long goodsId) {
         // checking cache instead of checking the database
@@ -63,6 +65,10 @@ public class OrderService {
         // set key into the Redis cache
         redisService.set(OrderKey.getQuickSaleOrderByUidGid, "" + user.getId() + "_" + goods.getId(), quicksaleOrder);
         return orderInfo;
+    }
+
+    public List<QuickSaleOrder> getAllQuicksaleOrdersByGoodsId(long goodsId) {
+        return orderDao.listByGoodsId(goodsId);
     }
 
     public void deleteOrders() {
