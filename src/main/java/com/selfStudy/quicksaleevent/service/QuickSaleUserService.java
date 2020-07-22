@@ -104,15 +104,14 @@ public class QuickSaleUserService {
 
         // 3. Create Cookie
         String token = UUIDUtil.uuid();
-        addCookie(response, token, quickSaleUser);
+        addCookie(response, token, quickSaleUser); // also add token into Redis
         return token;
     }
 
     private void addCookie(HttpServletResponse response, String token, QuickSaleUser quickSaleUser) {
         /**
-         * For adding cookie to the browser
+         * For adding cookie to the browser, also add token, object pair into Redis
          */
-//        String token = UUIDUtil.uuid();
         redisService.set(QuickSaleUserKey.token, token, quickSaleUser); // set it into Redis
         // (key, value) = (QuickSaleUserKey:tk + token, quickSaleUser) then
         // server can search by this key, to know which who are visiting the site now

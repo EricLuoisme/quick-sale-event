@@ -87,25 +87,13 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
         /**
          * For get User info from Token and Cookie, then use these to extract user object from Redis cache
          */
-        String paramToken = request.getParameter(QuickSaleUserService.COOKIE_NAME_TOKEN);
+        String paramToken = request.getParameter(QuickSaleUserService.COOKIE_NAME_TOKEN); // for compatibility reason, some phone user would not have cookie
         String cookieToken = getCookieValue(request, QuickSaleUserService.COOKIE_NAME_TOKEN);
         if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
             return null;
         }
         String token = StringUtils.isEmpty(paramToken) ? cookieToken : paramToken;
-        return userService.getByToken(response, token);
-    }
-
-    private void render(HttpServletResponse response, CodeMsg cm) throws Exception {
-        /**
-         * For outputting msg to page
-         */
-        response.setContentType("application/json;charset=UTF-8");
-        OutputStream out = response.getOutputStream();
-        String str = JSON.toJSONString(Result.error(cm)); // get error msg
-        out.write(str.getBytes("UTF-8"));
-        out.flush();
-        out.close();
+        return userService.getByToken(response, token); // get user object from Redis by token we set before
     }
 
     private String getCookieValue(HttpServletRequest request, String cookiName) {
@@ -122,5 +110,17 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
             }
         }
         return null;
+    }
+
+    private void render(HttpServletResponse response, CodeMsg cm) throws Exception {
+        /**
+         * For outputting msg to page
+         */
+        response.setContentType("application/json;charset=UTF-8");
+        OutputStream out = response.getOutputStream();
+        String str = JSON.toJSONString(Result.error(cm)); // get error msg
+        out.write(str.getBytes("UTF-8"));
+        out.flush();
+        out.close();
     }
 }

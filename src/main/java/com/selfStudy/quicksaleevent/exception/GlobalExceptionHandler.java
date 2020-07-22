@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
             String msg = allErrors.get(0).getDefaultMessage(); // only output the first error's message
             return Result.error(CodeMsg.BIND_ERROR.fillArgs(msg));
         } else {
-            //TODO handle other type of error
+            // TODO handle other type of error
             return Result.error(CodeMsg.SERVER_ERROR);
         }
     }

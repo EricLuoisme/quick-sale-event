@@ -1,9 +1,6 @@
 package com.selfStudy.quicksaleevent.redis;
 
-import com.alibaba.fastjson.JSON;
 import com.selfStudy.quicksaleevent.utils.BeanStringConvert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -17,8 +14,6 @@ import java.util.List;
 public class RedisService {
 
     JedisPool jedisPool; // injected by constructor
-
-//    private Logger log = LoggerFactory.getLogger(RedisService.class); // for showing the key we set into Redis
 
     public RedisService(JedisPool jedisPool) {
         this.jedisPool = jedisPool;

@@ -102,52 +102,6 @@ public class GoodsController {
         return Result.success(vo);
     }
 
-    @RequestMapping(value = "/to_detailOld/{goodsId}", produces = "text/html")
-    @ResponseBody
-    public String detailOld(HttpServletRequest request, HttpServletResponse response,
-                            Model model, QuickSaleUser user, @PathVariable("goodsId") long goodsId) {
-
-        // 1. get Redis cache
-        String html = redisService.get(GoodsKey.getGoodsDetails, "" + goodsId, String.class); // page-level cache
-        if (!StringUtils.isEmpty(html)) {
-            return html;
-        }
-
-        // 2. still need to get goods' info from database
-        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
-
-        long start = goods.getStartDate().getTime();
-        long end = goods.getEndDate().getTime();
-        long now = System.currentTimeMillis();
-
-        int quickSaleEventStatus = 0;
-        int remainingSecond = 0;
-
-        if (now < start) { // waiting for quick sale event
-            quickSaleEventStatus = 0;
-            remainingSecond = (int) ((start - now) / 1000); // counting down
-        } else if (now > end) { // quick sale event expired
-            quickSaleEventStatus = 2;
-            remainingSecond = -1;
-        } else { // quick sale event happening
-            quickSaleEventStatus = 1;
-            remainingSecond = 0;
-        }
-        model.addAttribute("user", user);
-        model.addAttribute("goods", goods);
-        model.addAttribute("quickSaleStatus", quickSaleEventStatus);
-        model.addAttribute("remainSeconds", remainingSecond);
-
-        // 3. creating cache of html and put it into Redis
-        WebContext ctx = new WebContext(request, response,
-                request.getServletContext(), request.getLocale(), model.asMap());
-        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);
-        if (!StringUtils.isEmpty(html)) {
-            redisService.set(GoodsKey.getGoodsDetails, "" + goodsId, html);
-        }
-        return html;
-    }
-
     public static void out(HttpServletResponse res, String html) {
         /**
          * Eliminate page problem of Thymeleaf
