@@ -125,7 +125,7 @@ public class QuicksaleController implements InitializingBean {
     public Result<Integer> quicksale(Model model, QuickSaleUser user,
                                      @RequestParam("goodsId") long goodsId, @PathVariable("path") String path) {
         /**
-         * Original QPS : 270
+         * Original QPS : 127
          * Improved QPS : 540
          */
         model.addAttribute("user", user);
@@ -145,8 +145,8 @@ public class QuicksaleController implements InitializingBean {
             return Result.error(CodeMsg.EVENT_STORAGE_EMPTY);
 
         // 4. reduce the stock
-        long stock = redisService.decr(GoodsKey.getQuickSalesGoodsStock, "" + goodsId);
-        if (stock < 0) {
+        long stock = redisService.decr(GoodsKey.getQuickSalesGoodsStock, "" + goodsId); // reduce the stock for every valid visit
+        if (stock < 0) { // then check whether it's valid or not
             localOverMap.put(goodsId, true);
             return Result.error(CodeMsg.EVENT_STORAGE_EMPTY);
         }
